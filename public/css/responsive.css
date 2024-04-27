@@ -1,0 +1,133 @@
+@media (min-width: 320px) and (max-width: 576px) {
+    .container {
+        max-width: 350px;
+    }
+
+    .login-body {
+        min-width: 100%;
+        background-color: #fff;
+    }
+
+    /* .login-form * {
+        font-size: 14px;
+    } */
+
+    .login-form {
+        min-width: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 0 15px;
+    }
+
+    .login-form-body {
+        margin: 38px 0;
+    }
+
+    .form-input {
+        border-radius: 3px;
+        max-height: 38px;
+        min-height: 38px;
+    }
+
+    .logo-display {
+        display: none;
+    }
+
+    .navbar-search {
+        margin: 0;
+    }
+
+    .btn {
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .card {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .phone-input {
+        --react-international-phone-height: 38px;
+        --react-international-phone-background-color: #cecece25;
+        --react-international-phone-flag-width: 38px;
+        margin-top: 5px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+    .container {
+        max-width: 540px;
+    }
+
+    .login-form {
+        min-width: 500px;
+        border: none;
+        box-shadow: none;
+        padding: 0 15px;
+    }
+
+    .card {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    .form-input {
+        border-radius: 3px;
+        max-height: 38px;
+        min-height: 38px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .container {
+        max-width: 720px;
+    }
+    
+    .logo-display {
+        display: block;
+    }
+
+    .navbar-search {
+        margin: 0 32px;
+    }
+    
+    .card:nth-of-type(2n) {
+        margin-right: 0!important;
+    }
+
+    .card {
+        margin-bottom: 25px;
+        margin-right: 25px;
+        flex-basis: calc((100% - 25px) / 2);
+    } 
+}
+
+@media (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+
+    .card:nth-of-type(3n) {
+        margin-right: 0!important;
+    }
+
+    .card {
+        margin-bottom: 20px;
+        margin-right: 20px;
+        flex-basis: calc((100% - 40px) / 3);
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+
+}
+
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+}

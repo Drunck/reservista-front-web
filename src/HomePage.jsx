@@ -1,10 +1,17 @@
-import { Link } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import RestaurantList from "./components/RestaurantList";
+import useAuth from "./hooks/useAuth";
 
 export default function HomePage() {
+    const { auth } = useAuth();
+    // console.log(auth.isAuth);
     return (
         <>
-            <h1><Link to="/login">Login</Link></h1> <br />
-            <h1><Link to="/signup">Sign-up</Link></h1>
+            <Navbar isAuthenticated={auth.isAuth} email={auth.email}/>
+            <div className="container mt-3">
+                <RestaurantList isAuthenticated={auth.isAuth} />
+            </div>
         </>
     )
 }
+ 

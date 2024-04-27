@@ -10,7 +10,7 @@ export default function ErrorPage() {
             <p className="m-0 p-0" style={{fontSize: "192px", fontWeight: "900"}}>Oops!</p> 
             <p className="" style={{fontSize: "24px", fontWeight: "400"}}>{error.status} - {error.statusText || error.message}</p>
             <Link className="text-decor-none" to="/">
-                <p className="btn-primary text-center m-auto" style={{width: "208px"}}>Go to Homepage</p>
+                <p className="d-flex btn-primary text-center m-auto align-center content-center" style={{width: "208px"}}>Go to Homepage</p>
             </Link>  
         </main>
     </div>

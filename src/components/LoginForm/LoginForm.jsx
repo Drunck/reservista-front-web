@@ -3,13 +3,15 @@ import AuthFormInput from "../FormInputs/AuthFormInput";
 import AlertMessageBox from "../AlertMessageBox/AlertMessageBox";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import API from "../../api/axios";
+import useAuth from "../../hooks/useAuth";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,64}$/;
-const LOGIN_URL = '/api/users/sign-in';
+const LOGIN_URL = '/api/auth/sign-in';
 
 
 export default function LoginForm({ buttonText }) {
+    const { setAuth } = useAuth();
     const [email, setEmail] = useState('');
     const [validEmail, setValidEmail] = useState(false);
     const [password, setPassword] = useState('');
@@ -69,60 +71,6 @@ export default function LoginForm({ buttonText }) {
         }
     }, [password])
 
-    useEffect(() => {
-        setServerErrorMessage('');
-    }, [email, password])
-
-
-
-    // const validateForm = () => {
-    //     const errors = {};
-    //     if (!email) {
-    //         errors.email = "Email is required";
-    //     } else if (!emailPattern.test(email)) {
-    //         errors.email = "Invalid email format";
-    //     }
-
-    //     if (!password) {
-    //         errors.password = "Password is required";
-    //     } else if (password.length < 8 || password.length > 64) {
-    //         errors.password = "Password must be between 8 and 64 characters long";
-    //     } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    //         errors.password = "Password must contain at least one special character";
-    //     } else if (!/[A-Z]/.test(password)) {
-    //         errors.password = "Password must contain at least one uppercase letter";
-    //     } else if (!/[a-z]/.test(password)) {
-    //         errors.password = "Password must contain at least one lowercase letter";
-    //     } else if (!/\d/.test(password)) {
-    //         errors.password = "Password must contain at least one digit";
-    //     }
-
-    //     setErrors(errors);
-    //     return Object.keys(errors).length === 0;
-    // };
-
-    // const handleGRPCLogin = async () => {
-    //     const req = new SignInRequest();
-    //     req.setEmail(email);
-    //     req.setPassword(password);
-
-    //     client.signIn(req, {}, (err, response) => {
-    //         if (err) {
-    //             console.error('Login error:', err);
-    //             // Handle error, such as displaying an error message
-    //             return;
-    //         }
-    //         if (!response) {
-    //             console.error('Empty response received.');
-    //             // Handle empty response
-    //             return;
-    //         }
-    //         console.log('Login successful:', response.getJwt());
-    //     });
-    // };
-
-
-
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -134,19 +82,6 @@ export default function LoginForm({ buttonText }) {
         }
 
         try {
-            // const response = await fetch(LOGIN_URL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({ email, password })
-            // });
-
-            // const data = await response.json();
-            // if (!response.ok) {
-            //     throw new Error(data.message === "user doesn't exists" ? "Email or password is incorrect" : data.message);
-            // }
-            // console.log(data)
             const response = await API.post(LOGIN_URL,
                 JSON.stringify({ email, password }),
                 {
@@ -155,12 +90,21 @@ export default function LoginForm({ buttonText }) {
                     },
                 }
             );
+            const accessToken = response?.data?.accessToken
+            setAuth({isAuth: true, email, accessToken});
+            // console.log(response?.data);
             navigate(from, { replace: true });
         } catch (error) {
+            console.log(error);
             if (!error?.response) {
                 setServerErrorMessage("No Server Response");
+            } else if (error.response?.data?.message === "wrong credentials") {
+                setServerErrorMessage("Email or password is incorrect");
+            } else if (error.response.data.message === "user not found") {
+                setServerErrorMessage("User does not exist");
             } else {
-                setServerErrorMessage(error.response.data);
+                console.log("Login Failed");
+                setServerErrorMessage("Login Failed");
             }
             setPassword("")
         }
@@ -176,7 +120,8 @@ export default function LoginForm({ buttonText }) {
     return (
         <form onSubmit={handleLogin}>
             <div className="login-form-body">
-                {serverErrorMessage && <AlertMessageBox type={"error"} title="Error" message={serverErrorMessage} />}
+                {serverErrorMessage && <AlertMessageBox type="error" title="Error" message={serverErrorMessage} />}
+
 
                 {inputFields.map(field => (
                     <AuthFormInput key={field.name} inputProps={field} isError={errors[field.name] || ''} />

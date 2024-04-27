@@ -2,15 +2,18 @@ import { useState, useEffect } from "react"
 import AuthFormInput from "../FormInputs/AuthFormInput";
 import PhoneInputField from "../FormInputs/PhoneInputField";
 import AlertMessageBox from "../AlertMessageBox/AlertMessageBox";
-import axios from 'axios';
+import API from "../../api/axios";
 import { useNavigate, useLocation } from 'react-router-dom';
+import useAuth from "../../hooks/useAuth";
 
 // const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,}$/;      
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,64}$/;
-const SIGNUP_URL = 'http://localhost:8000/api/users/sign-up';
+const SIGNUP_URL = '/api/auth/sign-up';
 
-export default function SignUpForm({ onSubmit, buttonText }) {
+export default function SignUpForm({ buttonText }) {
+    const { setAuth } = useAuth;
+
     const [name, setName] = useState("");
     const [validName, setValidName] = useState(false);
 
@@ -33,7 +36,7 @@ export default function SignUpForm({ onSubmit, buttonText }) {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || "/";
-    
+
     const handleCheckboxChange = () => {
         setShowPassword(prevState => !prevState);
     };
@@ -110,7 +113,7 @@ export default function SignUpForm({ onSubmit, buttonText }) {
 
     useEffect(() => {
         let phoneError = ''
-        if (phone.length > 2 && phone.length < 12) {
+        if (phone.length > 1 && phone.length < 12) {
             phoneError = "Invalid phone number";
             setValidPhone(false);
             setErrors(prevErrors => ({ ...prevErrors, phone: phoneError }));
@@ -119,49 +122,6 @@ export default function SignUpForm({ onSubmit, buttonText }) {
             setErrors(prevErrors => ({ ...prevErrors, phone: '' }));
         }
     }, [phone])
-
-
-    useEffect(() => {
-        setServerErrorMessage('');
-    }, [email, password])
-
-
-    // const validateForm = () => {
-    //     const errors = {};
-    //     if (!username) {
-    //         errors.name = "Name is required";
-    //     }
-
-    //     if (!surname) {
-    //         errors.surname = "Surname is required";
-    //     }
-    //     if (!email) {
-    //         errors.email = "Email is required";
-    //     } else if (!emailPattern.test(email)) {
-    //         errors.email = "Invalid email format";
-    //     }
-
-    //     if (!password) {
-    //         errors.password = "Password is required";
-    //     } else if (password.length < 8 || password.length > 64) {
-    //         errors.password = "Password must be between 8 and 64 characters long";
-    //     } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    //         errors.password = "Password must contain at least one special character";
-    //     } else if (!/[A-Z]/.test(password)) {
-    //         errors.password = "Password must contain at least one uppercase letter";
-    //     } else if (!/[a-z]/.test(password)) {
-    //         errors.password = "Password must contain at least one lowercase letter";
-    //     } else if (!/\d/.test(password)) {
-    //         errors.password = "Password must contain at least one digit";
-    //     }
-
-    // if (phone && phone.length < 12) {
-    //     errors.phone = "Invalid phone number";
-    // }
-
-    //     setErrors(errors);
-    //     return Object.keys(errors).length === 0;
-    // };
 
     const handleSignup = async (e) => {
         e.preventDefault();
@@ -175,39 +135,29 @@ export default function SignUpForm({ onSubmit, buttonText }) {
         }
 
         try {
-            // const response = await fetch(SIGNUP_URL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({ name, surname, phone, email, password })
-            // });
-
-            const response = await axios.post(SIGNUP_URL,
+            const response = await API.post(SIGNUP_URL,
                 JSON.stringify({ name, surname, phone, email, password }),
                 {
-                    headers: { 
-                        'Content-Type': 'application/json' 
+                    headers: {
+                        'Content-Type': 'application/json'
                     },
                 }
             );
-            // const data = await response.json();
-            // if (!response.ok) {
-            //     throw new Error(data.message === "user doesn't exists" ? "Email or password is incorrect" : data.message);
-            // }
-            console.log(response)
-
             setName('');
             setSurname('');
             setEmail('');
             setPassword('');
             setPhone('');
+            const accessToken = response.data.accessToken
+            setAuth({isAuth: true, email, accessToken});
+            // console.log(response?.data);
             navigate(from, { replace: true });
         } catch (error) {
             if (!error?.response) {
                 setServerErrorMessage('No Server Response');
             } else {
-                setServerErrorMessage(error.response.data);
+                console.log('Signup Failed')
+                setServerErrorMessage('Signup Failed');
             }
         }
 
@@ -225,7 +175,7 @@ export default function SignUpForm({ onSubmit, buttonText }) {
     return (
         <form onSubmit={handleSignup}>
             <div className="login-form-body">
-                {serverErrorMessage && <AlertMessageBox type={"error"} title="Error" message={serverErrorMessage} />}
+                {serverErrorMessage && <AlertMessageBox type="error" title="Error" message={{ serverErrorMessage }} />}
 
                 {inputFields.map(field => (
                     <AuthFormInput key={field.name} inputProps={field} isError={errors[field.name] || ''} />
@@ -250,7 +200,7 @@ export default function SignUpForm({ onSubmit, buttonText }) {
                 <AuthFormInput inputProps={inputFields[2]} />
                 <AuthFormInput inputProps={inputFields[3]} /> */}
 
-                <button disabled={(!validEmail || !validPassword || !validPhone || !validName || !validSurname) ? true : false} className="btn w-100 mt-3" type="submit">{buttonText}</button>
+                <button disabled={(!validName || !validSurname || !validEmail || !validPassword || !validPhone) ? true : false} className="btn w-100 mt-3" type="submit">{buttonText}</button>
             </div>
         </form>
     );

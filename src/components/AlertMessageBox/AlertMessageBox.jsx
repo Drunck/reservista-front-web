@@ -1,4 +1,3 @@
-import React from 'react'
 import "./AlertMessageBox.css";
 
 export default function AlertMessageBox({ type, title, message }) {

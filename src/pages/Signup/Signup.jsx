@@ -7,7 +7,7 @@ export default function SignUp() {
         <div className="login-body">
             <div className="login-form m-auto">
                 <Link className="text-decor-none" to="/">
-                    <h1 className="logo-font text-center" style={{ marginTop: "20px", marginBottom: "30px", fontSize: "50px" }}>
+                    <h1 className="logo-font logo-font-size-lg text-center" style={{ marginTop: "20px", marginBottom: "30px", fontSize: "50px" }}>
                         reservista
                     </h1>
                 </Link>
