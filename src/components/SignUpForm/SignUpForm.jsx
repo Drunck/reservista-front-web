@@ -12,7 +12,7 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,64}$/
 const SIGNUP_URL = '/api/auth/sign-up';
 
 export default function SignUpForm({ buttonText }) {
-    const { setAuth } = useAuth;
+    const { setAuth } = useAuth();
 
     const [name, setName] = useState("");
     const [validName, setValidName] = useState(false);
@@ -148,11 +148,12 @@ export default function SignUpForm({ buttonText }) {
             setEmail('');
             setPassword('');
             setPhone('');
+            console.log("Response -- > " + response);
             const accessToken = response.data.accessToken
             setAuth({isAuth: true, email, accessToken});
-            // console.log(response?.data);
             navigate(from, { replace: true });
         } catch (error) {
+            console.log("Error --> " + error);
             if (!error?.response) {
                 setServerErrorMessage('No Server Response');
             } else {
@@ -175,7 +176,7 @@ export default function SignUpForm({ buttonText }) {
     return (
         <form onSubmit={handleSignup}>
             <div className="login-form-body">
-                {serverErrorMessage && <AlertMessageBox type="error" title="Error" message={{ serverErrorMessage }} />}
+                {serverErrorMessage && <AlertMessageBox type="error" title="Error" message={ serverErrorMessage } />}
 
                 {inputFields.map(field => (
                     <AuthFormInput key={field.name} inputProps={field} isError={errors[field.name] || ''} />
