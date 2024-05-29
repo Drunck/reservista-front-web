@@ -1,8 +1,0 @@
-.idea
-.DS_Store
-.env
-.git
-*Dockerfile*
-*docker-compose*
-node_modules
-README.*
