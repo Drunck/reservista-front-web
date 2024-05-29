@@ -13,10 +13,10 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
   const searchParams = useSearchParams();
   const { userId } = useAuth();
   const restaurantId = params.restaurantId;
-  const time = searchParams.get("time");
+  const time = searchParams.get("time") || times[0];
 
   const [tables, setTables] = useState<TRestaurantTables[]>([]);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(times[0]);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [reservations, setReservations] = useState<TRestaurantReservation[]>([]);
   const [reservationStatus, setReservationStatus] = useState<string>("");

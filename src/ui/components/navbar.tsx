@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { kumbh_sans } from "../fonts";
 import useAuth from "@/lib/auth-context";
-import { LoginIcon, SearchIcon } from "./icons";
+import { BookingsIcon, LoginIcon, SearchIcon } from "./icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,11 +14,11 @@ import { TUser } from "@/lib/types";
 export default function NavBar() {
   const { isAuth, isLoading, userId } = useAuth();
   const [user, setUser] = useState<TUser | undefined>(undefined);
-  const [ isMounted, setIsMounted ] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
-      
+
       if (isAuth) {
         try {
           setIsMounted(false);
@@ -153,10 +153,16 @@ export function UserDropdownMenu({ user, userId }: { user: TUser | undefined, us
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href={`users/${userId}/settings`}>
+          <Link href={`/users/${userId}/settings`}>
             <DropdownMenuItem className="cursor-pointer">
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link href={`/users/${userId}/bookings`}>
+            <DropdownMenuItem className="cursor-pointer">
+              <BookingsIcon className="mr-2 h-4 w-4" />
+              <span>Bookings</span>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>

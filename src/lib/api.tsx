@@ -194,3 +194,41 @@ export const makeTableReservation = async (formData: ReservationInput) => {
     return {};
   }
 }
+
+export const getUserReservations = async (userId: string) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/reservations/all/user`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+    });
+    console.log("USER RESERVATION", response);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const activateUser = async (code: string) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/auth/activate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify({ code })
+    });
+    if (response.status === 200) {
+      return await response.json();
+    } else {
+      return await response.json();
+    }
+    console.log("ACTIVATE USER", response);
+    return await response.json();
+  } catch (error) {
+    console.error("Error activating user: ", error);
+    return {};
+  }
+}
