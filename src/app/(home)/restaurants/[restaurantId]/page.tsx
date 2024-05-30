@@ -68,7 +68,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
   return (
     <>
       <div className="relative w-full h-96">
-        <Image className="w-full h-full object-cover" src="/images/restaurants/tanuki.png" alt="restaurant" fill />
+        <Image className="w-full h-full object-cover" src="https://reservista-main-bucket.s3.amazonaws.com/gumball%27s%20living%20room.jpg" alt="restaurant" fill />
       </div>
       <div className="grid grid-cols-1 w-full lg:grid-cols-3 lg:gap-4 lg:w-[95%] mx-auto">
         <div className="relative w-full col-span-1 rounded-t-xl bg-white lg:w-full mt-[-80px] mx-auto lg:col-span-2 lg:shadow-[0px_0px_10px_0px_#0000001A]">
