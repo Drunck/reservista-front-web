@@ -15,8 +15,14 @@ export const privateRoutes: string[] = [
     "/users/[id]/settings/info",
     "/users/[id]/wishlist",
     "/users/[id]/bookings",
+    "/users/[id]/profile",
+];
+
+export const activetedUserRoutes = [
     "/restaurants/[restaurantId]/booking",
 ];
+
+export const adminRoutes: string[] = ["/admin"];
 
 /**
  * Auth routes are routes that are only accessible to unauthenticated users.

@@ -21,14 +21,14 @@ export const GreenSuccessCircleIcon: React.FC<{ className?: string }> = ({ class
 );
 
 export const LoadingIcon: React.FC<{ className?: string, strokeFill?: string }> = ({ className = "", strokeFill = "fill-white" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path className={strokeFill} fillRule="evenodd" clipRule="evenodd" d="M12.676 1.67511C12.5511 1.41526 12.2883 1.25 12 1.25C11.2647 1.25 10.5459 1.32394 9.8508 1.46503C4.94367 2.46112 1.25 6.79837 1.25 12C1.25 17.9371 6.06294 22.75 12 22.75C17.9371 22.75 22.75 17.9371 22.75 12C22.75 7.59065 20.0954 3.80298 16.3003 2.14482C15.9207 1.97898 15.4786 2.15224 15.3127 2.53181C15.1469 2.91137 15.3202 3.35351 15.6997 3.51935C18.9682 4.94742 21.25 8.20808 21.25 12C21.25 17.1086 17.1086 21.25 12 21.25C6.89137 21.25 2.75 17.1086 2.75 12C2.75 7.84953 5.48421 4.33622 9.25 3.16544V4.5C9.25 4.81852 9.45118 5.10229 9.75175 5.20772C10.0523 5.31315 10.3867 5.21724 10.5857 4.96852L12.5857 2.46852C12.7658 2.24339 12.8009 1.93496 12.676 1.67511Z" />
   </svg>
 );
 
-export const MapPointIcon: React.FC<{ className?: string, strokeFill?: string }> = ({ className = "", strokeFill = "fill-white" }) => (
+export const MapPointIcon: React.FC<{ className?: string }> = ({ className = "fill-black" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 800 800" className={className} xmlSpace="preserve"  >
-    <path className={strokeFill} d="M400,66.7c-147.3,0-266.7,133.4-266.7,283.3c0,148.7,85.1,310.4,217.9,372.5c31,14.5,66.6,14.5,97.5,0C581.6,660.4,666.7,498.7,666.7,350C666.7,200.1,547.3,66.7,400,66.7z" />
+    <path d="M400,66.7c-147.3,0-266.7,133.4-266.7,283.3c0,148.7,85.1,310.4,217.9,372.5c31,14.5,66.6,14.5,97.5,0C581.6,660.4,666.7,498.7,666.7,350C666.7,200.1,547.3,66.7,400,66.7z" />
     <path className="fill-white" d="M400,416.7c46,0,83.3-37.3,83.3-83.3c0-46-37.3-83.3-83.3-83.3s-83.3,37.3-83.3,83.3C316.7,379.4,354,416.7,400,416.7z" />
   </svg>
 );

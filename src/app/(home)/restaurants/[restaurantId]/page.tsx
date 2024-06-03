@@ -8,23 +8,26 @@ import AboutSection from "./(sections)/about-section";
 import ReviewsSection from "./(sections)/reviews-section";
 import GallerySection from "./(sections)/gallery-section";
 import MenuSection from "./(sections)/menu-section";
-import useMediaQuery from "@/hooks/use-media-query";
+import useMediaQuery from "@/lib/hooks/use-media-query";
 import { useEffect, useState } from "react";
 import { getRestaurantById } from "@/lib/api";
 import { TRestaurant, times } from "@/lib/types";
+import useAuth from "@/lib/hooks/use-auth";
 
 export default function RestaurantPage({ params }: { params: { restaurantId: string } }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams()
-  const section = searchParams.get('section') || 'about';
+  const searchParams = useSearchParams();
+  const redirectURL = `${process.env.NEXT_PUBLIC_DEV_URL}${pathname}/booking`;
+  const { auth, isLoading } = useAuth();
+  const section = searchParams.get("section") || "about";
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [restaurant, setRestaurant] = useState<TRestaurant>({
     id: "",
-    restaurant_name: "",
-    restaurant_address: "",
-    restaurant_contact: "",
+    name: "",
+    address: "",
+    contact: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>(times[0]);
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -33,48 +36,55 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
 
   useEffect(() => {
     const getRestaurant = async () => {
-      setIsLoading(true);
-
-      try {
-        const response = await getRestaurantById(params.restaurantId);
-        if (response) {
-          // console.log(response);
-          setRestaurant(response);
-        }
-      } catch (error) {
-        console.error("Error fetching restaurant: ", error);
-      } finally {
-        setIsLoading(false);
-      };
+      const response = await getRestaurantById(params.restaurantId);
+      if (response) {
+        setRestaurant(response);
+      }
     }
 
     getRestaurant();
-  }, []);
+  }, [params.restaurantId]);
 
   const renderSection = () => {
     switch (section) {
-      case 'menu':
+      case "menu":
         return <MenuSection />;
-      case 'gallery':
+      case "gallery":
         return <GallerySection />;
-      case 'reviews':
+      case "reviews":
         return <ReviewsSection />;
-      case 'about':
+      case "about":
       default:
         return <AboutSection restaurant={restaurant} />;
     }
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null
+  }
+
   return (
     <>
       <div className="relative w-full h-96">
-        <Image className="w-full h-full object-cover" src="https://reservista-main-bucket.s3.amazonaws.com/gumball%27s%20living%20room.jpg" alt="restaurant" fill />
+        {
+          restaurant.image_urls ? (
+            <Image src={`${restaurant.image_urls[0]}`} alt="Restaurant" className="w-full h-full object-cover" fill priority placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII=" />
+          ) : (
+            <div className="min-w-md min-h-md min-h-96 bg-gray-200"></div>
+          )
+        }
+        {/* <Image className="w-full h-full object-cover" src="https://reservista-main-bucket.s3.amazonaws.com/gumball%27s%20living%20room.jpg" alt="restaurant" fill /> */}
       </div>
       <div className="grid grid-cols-1 w-full lg:grid-cols-3 lg:gap-4 lg:w-[95%] mx-auto">
         <div className="relative w-full col-span-1 rounded-t-xl bg-white lg:w-full mt-[-80px] mx-auto lg:col-span-2 lg:shadow-[0px_0px_10px_0px_#0000001A]">
           <div className="py-6 px-6">
             <div className="flex flex-row justify-between items-center w-full">
-              <p className="font-bold text-2xl">{restaurant.restaurant_name}</p>
+              <p className="font-bold text-2xl">{restaurant.name}</p>
               <div className="flex flex-row items-end gap-x-1">
                 <HalfFullStarIcon className="w-4 h-4" />
                 <p className="text-sm leading-none">4.5</p>
@@ -86,8 +96,8 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
               <p className="text-sm ml-1">Italian</p>
             </div>
             <div className="flex flex-row items-center mt-1">
-              <MapPointIcon className="w-4 h-4" strokeFill="fill-zinc-500" />
-              <p className="text-sm ml-1 truncate">{restaurant.restaurant_address}</p>
+              <MapPointIcon className="w-4 h-4 fill-gray-500" />
+              <p className="text-sm ml-1 truncate">{restaurant.address}</p>
             </div>
           </div>
           <nav className="mt-3 shadow-[inset_0_-1px_0_0_#e5e5e5] w-full text-sm">
@@ -154,23 +164,42 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
                     ))}
                   </select>
                 </div>
-                <div className="flex justify-center py-4">
-                  <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
-                </div>
+                {
+                  !isLoading && (
+                    <div className="flex justify-center py-4">
+                      {
+                        auth.isAuth ?
+                          (auth.user_roles && auth.user_roles.includes("activated") ? (
+                            <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
+                          ) : (
+                            <Link href={`${process.env.NEXT_PUBLIC_DEV_URL}/activate`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Activate account</Link>
+                          )) : (
+                            <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Login to Book</Link>
+                          )
+                      }
+                      {/* <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link> */}
+                    </div>)
+                }
+
               </div>
             </div>
           </div>
         }
 
-
         {!isDesktop &&
           <div className="sticky bottom-20 w-full">
             <div className="flex flex-row justify-center w-full">
-              <Link href="/restaurants/[restaurantId]/booking" as={`/restaurants/${params.restaurantId}/booking`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
+              {
+                auth.isAuth ? (
+                  <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
+                ) : (
+                  <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Login to Book</Link>
+                )
+              }
+              {/* <Link href="/restaurants/[restaurantId]/booking" as={`/restaurants/${params.restaurantId}/booking`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link> */}
             </div>
           </div>
         }
-
       </div>
     </>
   )

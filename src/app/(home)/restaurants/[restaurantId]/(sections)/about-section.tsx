@@ -13,7 +13,7 @@ export default function AboutSection({restaurant}: {restaurant: TRestaurant}) {
         <div className="mt-2">
           <div className="flex flex-row">
             <PhoneIcon className="w-5 h-5" />
-            <p className="text-[--dark-gray-color] ml-1">{restaurant.restaurant_contact}</p>
+            <p className="text-[--dark-gray-color] ml-1">{restaurant.contact}</p>
           </div>
           <div className="flex flex-row mt-2 items-center gap-x-2">
             <Link href="#">

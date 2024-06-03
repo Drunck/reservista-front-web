@@ -3,47 +3,46 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { kumbh_sans } from "../fonts";
-import useAuth from "@/lib/auth-context";
+import useAuth from "@/lib/hooks/use-auth";
 import { BookingsIcon, LoginIcon, SearchIcon } from "./icons";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { TUser } from "@/lib/types";
 
 export default function NavBar() {
-  const { isAuth, isLoading, userId } = useAuth();
+  const pathname = usePathname();
+  const { auth, isLoading } = useAuth();
   const [user, setUser] = useState<TUser | undefined>(undefined);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
-
-      if (isAuth) {
-        try {
-          setIsMounted(false);
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/users/view/id/${userId} `, {
-            method: "GET",
-            credentials: "include",
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data);
-          }
-        } catch (error) {
-          console.error("Error fetching user: ", error);
-        } finally {
-          setIsMounted(true);
-          return;
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/users/view/id/${auth.user_id}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
         }
+      } catch (error) {
+        console.error("Error fetching user: ", error);
+      } finally {
+        return;
       }
     };
-    getUser();
-  }, [isAuth, userId]);
-
+    if (auth.isAuth) {
+      getUser();
+    } else {
+      setUser(undefined);
+    }
+  }, [auth.isAuth, auth.user_id]);
+  console.log("IS AUTH", auth.isAuth, "USER", user, "USER ID", auth.user_id)
   return (
-    <div className="hidden lg:block lg:fixed w-screen shadow-md top-0 z-10 bg-white">
-      <nav className="relative w-full max-w-6xl m-auto flex flex-row items-center justify-between">
+    <div className="fixed w-screen shadow-md top-0 z-10 bg-white">
+      <nav className="relative w-full max-w-7xl m-auto flex flex-row items-center justify-between px-4">
         <div className="flex flex-row items-center">
           <div className="flex flex-row items-center py-2">
             <Link href="/" className={`${kumbh_sans.className} font-bold text-4xl`}>reservista</Link>
@@ -62,38 +61,26 @@ export default function NavBar() {
           </div>
         </div>
         <div className="flex flex-row items-center gap-x-3 text-nowrap">
-          {isAuth && !isLoading && isMounted ?
-            <UserDropdownMenu user={user} userId={userId} />
-            :
-            <Link href="/sign-in" className="flex flex-row items-center gap-x-2 rounded-lg py-2 px-4 bg-black text-white text-sm hover:bg-[--dark-blue-1] transition active:shadow-[0px_0px_5px_0px_#333333]">
-              <LoginIcon className="w-5 h-5 stroke-white" />
-              Sign in
-            </Link>
+          {isLoading ?
+            <div>
+              <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+            : auth.isAuth || user !== undefined ?
+              <>
+                <UserDropdownMenu user={user} userId={auth.user_id} />
+              </>
+              :
+              pathname !== "/sign-in" ?
+                <Link href="/sign-in" className="flex flex-row items-center gap-x-2 rounded-lg py-2 px-4 bg-black text-white text-sm hover:bg-[--dark-blue-1] transition active:shadow-[0px_0px_5px_0px_#333333]">
+                  <LoginIcon className="w-5 h-5 stroke-white" />
+                  Sign in
+                </Link>
+                :
+                <Link href="/sign-up" className="flex flex-row items-center gap-x-2 rounded-lg py-2 px-4 bg-black text-white text-sm hover:bg-[--dark-blue-1] transition active:shadow-[0px_0px_5px_0px_#333333]">
+                  <LoginIcon className="w-5 h-5 stroke-white" />
+                  Sign up
+                </Link>
           }
-
-          {/* {isAuth ?
-            <Link href="/user" className="px-4 rounded-md transition duration-300 hover:bg-gray-100">
-              <div className="relative flex flex-row items-center w-full gap-x-2">
-                <UserIcon className="w-5 h-5 stroke-gray-500" />
-                <div className="flex flex-col gap-y-1">
-                  <span className="text-sm">Username</span>
-                  <span className="flex flex-row gap-x-2 text-xs text-gray-500 items-center">
-                    My profile
-                    <LongRightArrowIcon className="w-4 h-4 stroke-gray-500" />
-                  </span>
-                </div>
-              </div>
-            </Link> :
-            <>
-              <Link href="/sign-in" className="py-2 px-4 text-md hover:underline">
-                Sign in
-              </Link>
-              <Link href="/sign-up" className="flex flex-row items-center gap-x-2 py-2 px-4 text-sm rounded-lg bg-black text-white hover:bg-[#293241] transition active:shadow-[0px_0px_5px_0px_#333333]">
-                <LoginIcon className="w-5 h-5 stroke-white" />
-                Sign up
-              </Link>
-            </>
-          } */}
         </div>
       </nav>
     </div>
@@ -104,7 +91,7 @@ export default function NavBar() {
 export function UserDropdownMenu({ user, userId }: { user: TUser | undefined, userId: string | undefined }) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
-  const { setIsAuth } = useAuth();
+  const { setAuth } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -118,10 +105,8 @@ export function UserDropdownMenu({ user, userId }: { user: TUser | undefined, us
       });
 
       if (response.ok) {
-        setIsAuth(false);
-        router.push("/");
-      } else {
-        console.error("Failed to log out");
+        setAuth({ isAuth: false, user_id: "", user_roles: [] });
+        router.push("/sign-in");
       }
     } catch (error) {
       console.error("Failed to log out:", error);
@@ -148,27 +133,27 @@ export function UserDropdownMenu({ user, userId }: { user: TUser | undefined, us
                 <User className="w-1/2 h-1/2" />
               </AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium">{user?.surname} {user?.name}</span>
+            <span className="text-sm font-medium">{user?.name} {user?.surname}</span>
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href={`/users/${userId}/settings`}>
+          <Link href={`/users/${userId}/profile`}>
             <DropdownMenuItem className="cursor-pointer">
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <span>My profile</span>
             </DropdownMenuItem>
           </Link>
           <Link href={`/users/${userId}/bookings`}>
             <DropdownMenuItem className="cursor-pointer">
               <BookingsIcon className="mr-2 h-4 w-4" />
-              <span>Bookings</span>
+              <span>My bookings</span>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
-          <button className="flex flex-row items-center" onClick={handleLogout} disabled={loggingOut}>
+          <button className="flex flex-row items-center w-full" onClick={handleLogout} disabled={loggingOut}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </button>

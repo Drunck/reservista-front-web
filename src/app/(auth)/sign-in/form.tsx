@@ -4,10 +4,10 @@ import { signInUser } from '@/lib/api';
 import { SignInSchema, TSignIn } from '@/lib/types';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/ui/components/button';
 import { DangerCircleIcon, CheckMarkIcon, LoadingIcon, GreenSuccessCircleIcon } from '@/ui/components/icons';
-import useAuth from '@/lib/auth-context';
+import useAuth from '@/lib/hooks/use-auth';
 
 type FormErrors = {
   email?: string;
@@ -16,6 +16,8 @@ type FormErrors = {
 
 export default function SignInFormComponent() {
   const router = useRouter();
+  const redirectURL = useSearchParams().get("redirect")?.toString() || "/";
+  const { setAuth } = useAuth();
   const [formInputData, setFormInputData] = useState<TSignIn>({
     email: "",
     password: ""
@@ -25,7 +27,6 @@ export default function SignInFormComponent() {
   const [formSuccess, setFormSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const {setIsAuth} = useAuth();
 
   const handleCheckboxChange = () => {
     setShowPassword(prevState => !prevState);
@@ -62,6 +63,7 @@ export default function SignInFormComponent() {
 
   async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
+    setServerError("");
 
     const result = SignInSchema.safeParse(formInputData);
     if (!result.success) {
@@ -89,14 +91,15 @@ export default function SignInFormComponent() {
     } else if (response?.serverError && response?.serverError === "user is not verified") {
       // console.log("User is not verified");
       setFormSuccess(true);
-      router.push("/");
+      setAuth({ isAuth: true});
+      router.push(redirectURL);
     } else if (response?.serverError) {
       setServerError(response.serverError);
     } else {
       setFormSuccess(true);
-      setIsAuth(true);
+      setAuth({ isAuth: true});
       // await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push("/");
+      router.push(redirectURL);
     }
 
     setFormInputData(prev => ({
@@ -146,7 +149,7 @@ export default function SignInFormComponent() {
       </div>
 
       <Button className="mt-10 rounded-md p-2" disabled={isLoading} onClick={handleSubmit}>
-        {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin mr-2" /> : "Sign in" }
+        {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin mr-2" /> : "Sign in"}
       </Button>
     </form>
   )

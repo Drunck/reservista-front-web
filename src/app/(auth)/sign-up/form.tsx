@@ -1,5 +1,6 @@
 "use client";
 import { signUpUser } from '@/lib/api';
+import useAuth from '@/lib/hooks/use-auth';
 import { SignUpSchema, TSignUp } from '@/lib/types';
 import { Button } from '@/ui/components/button';
 import { CheckMarkIcon, DangerCircleIcon, LoadingIcon } from '@/ui/components/icons';
@@ -18,6 +19,7 @@ type FormErrors = {
 
 export default function SignUpFormComponent() {
   const router = useRouter();
+  const { setAuth } = useAuth();
   const [phoneNum, setPhoneNum] = useState("");
   const [formInputData, setFormInputData] = useState<TSignUp>({
     name: "",
@@ -65,6 +67,7 @@ export default function SignUpFormComponent() {
 
   async function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
+    setServerError("");
 
     const result = SignUpSchema.safeParse(formInputData);
     if (!result.success) {
@@ -92,7 +95,8 @@ export default function SignUpFormComponent() {
     } else if (response?.serverError) {
       setServerError(response.serverError);
     } else {
-      router.push("/");
+      setAuth(true);
+      router.push("/activate");
     }
 
     setFormInputData(prev => ({
@@ -150,7 +154,7 @@ export default function SignUpFormComponent() {
         </div>
       </div>
       <Button className="mt-10 rounded-md p-2" disabled={isLoading} onClick={handleSubmit}>
-        {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin mr-2" /> : "Sign up"}
+        {isLoading ? <LoadingIcon className="w-6 h-6" /> : "Sign up"}
       </Button>
     </form>
   )

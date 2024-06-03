@@ -17,6 +17,12 @@ export const SignUpSchema = z.object({
 
 export type TSignUp = z.infer<typeof SignUpSchema>;
 
+export const ActivationCodeSchema = z.object({
+  Code: z.string().length(6, "Activation code must be 6 characters")
+});
+
+export type TActivationCode = z.infer<typeof ActivationCodeSchema>;
+
 export type TUser = {
   name: string;
   surname: string;
@@ -33,6 +39,19 @@ export type JWTTokenUser = {
   exp?: number;
 }
 
+
+export type Auth = {
+  isAuth: boolean;
+  user_id?: string;
+  user_roles?: string[];
+}
+
+export type AuthContextType = {
+  auth: Auth;
+  setAuth: (auth: Auth) => void;
+  isLoading: boolean;
+}
+
 export type TAuthContext = {
   isAuth: boolean;
   isLoading: boolean;
@@ -41,16 +60,33 @@ export type TAuthContext = {
   setIsLoading: (isLoading: boolean) => void;
 }
 
+export type TReservation = {
+  id: string;
+  table: {
+    id: string;
+    NumberOfSeats: number;
+    IsReserved: boolean;
+    TableNumber: number;
+    restaurant: {
+      id: string;
+      name: string;
+      address: string;
+      contact: string;
+    };
+  };
+  reservationTime: string;
+};
+
 export type TRestaurant = {
   id: string;
-  restaurant_name: string;
-  restaurant_address: string;
-  restaurant_contact: string;
+  name: string;
+  address: string;
+  contact: string;
   restaurant_cuisine?: string;
   description?: string,
-  reviews?: object;
-  menu?: object;
-  gallery?: object;
+  reviews?: object[];
+  menu?: object[];
+  image_urls?: object[];
 }
 
 export type TRestaurantReservation = {
@@ -66,24 +102,41 @@ export type TRestaurantTables = {
   status?: "available" | "reserved" | "selected";
 }
 
-export type ModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}
-
-export type PopoverProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-};
-
 export type ReservationInput = {
   user_id: string;
   table_id: string;
   reservation_time: string;
 }
 
+export type TResponse = {
+  status: number;
+  message: string;
+}
+
+export type TAPIRestaurantResponse = TResponse & {
+  data: TRestaurant[]
+}
+
+export type TRestaurantReservationsResponse = TResponse & {
+  data: {
+    reservations?: TReservation[];
+  }
+}
+
+
 export type FetchState = "loading" | "error" | "success";
 
 export const times = ["12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM"];
+
+export type ReponsiveDrawerDialogProps = {
+  title: string;
+  description?: string;
+  triggerButtonText: string;
+  triggerButtonOption?: string;
+  closeButtonText: string;
+  children: React.ReactNode;
+}
+
+export type MobileSideBarProps = {
+  children: React.ReactNode;
+}

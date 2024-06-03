@@ -1,16 +1,20 @@
 import { inter } from "@/ui/fonts";
 import "../ui/globals.css";
 import "../ui/styles.css";
-import { AuthProvider } from "@/lib/auth-context";
+import ResponsiveNavbar from "./reponsive-navbar";
+import { AuthProvider } from "@/lib/context/auth-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} lg:w-screen lg:overflow-x-hidden`}>
-        <AuthProvider>
+    <AuthProvider>
+      <html lang="en">
+        <body className={`${inter.className} lg:w-screen lg:overflow-x-hidden transition`}>
+          <ResponsiveNavbar />
           {children}
-        </AuthProvider>
-      </body>
-    </html>
+          <Toaster />
+        </body>
+      </html>
+    </AuthProvider>
   );
 }

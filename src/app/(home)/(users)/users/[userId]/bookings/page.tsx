@@ -1,7 +1,7 @@
-import React from 'react'
+import UserBookingsComponent from "./user-bookings-component";
 
-export default function UserBookingsPage() {
+export default function UserBookingsPage({params}: {params: {userId: string}}) {
   return (
-    <div>UserBookingsPage</div>
+    <UserBookingsComponent userId={params.userId}/>
   )
 }

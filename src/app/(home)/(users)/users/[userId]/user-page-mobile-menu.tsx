@@ -1,8 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import useMediaQuery from "@/hooks/use-media-query";
-import useAuth from "@/lib/auth-context";
+import useMediaQuery from "@/lib/hooks/use-media-query";
+import useAuth from "@/lib/hooks/use-auth";
 import { TUser } from "@/lib/types";
 import { Button } from "@/ui/components/button";
 import { LongRightArrowIcon } from "@/ui/components/icons";
@@ -11,18 +11,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function Settings({ params }: { params: { userId: string } }) {
-  const router = useRouter();
-  const userId = params.userId;
-  const [loggingOut, setLoggingOut] = useState(false);
+export default function UserPageMobileMenu({ userId }: { userId: string }) {
+  const router = useRouter()
+  const { auth, setAuth } = useAuth();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
-
-  const { isAuth, isLoading, setIsAuth } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
   const [user, setUser] = useState<TUser | undefined>(undefined);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
-      if (isAuth) {
+      if (auth.isAuth) {
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/users/view/id/${userId} `, {
             method: "GET",
@@ -31,6 +30,7 @@ export default function Settings({ params }: { params: { userId: string } }) {
           if (response.ok) {
             const data = await response.json();
             setUser(data);
+            setIsMounted(true);
           }
         } catch (error) {
           console.error("Error fetching user: ", error);
@@ -40,13 +40,13 @@ export default function Settings({ params }: { params: { userId: string } }) {
       }
     };
     getUser();
-  }, [isAuth, isLoading, userId]);
+  }, [auth.isAuth, auth.user_id, userId]);
 
   useEffect(() => {
     if (isDesktop) {
-      router.push(`/users/${userId}/settings/info`);
+      router.push(`/users/${userId}/profile`);
     }
-  }, [isDesktop, userId]);
+  }, [router, userId, isDesktop]);
 
   const handleLogout = async () => {
     try {
@@ -60,12 +60,13 @@ export default function Settings({ params }: { params: { userId: string } }) {
       });
 
       if (response.ok) {
-        setIsAuth(false);
+        setAuth({ isAuth: false });
         router.push("/");
-      } else {
-        console.error("Failed to log out");
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (!error.response) {
+        console.error("No server response:", error);
+      }
       console.error("Failed to log out:", error);
     } finally {
       setLoggingOut(false);
@@ -76,21 +77,30 @@ export default function Settings({ params }: { params: { userId: string } }) {
     return (
       <div className="flex flex-col justify-center px-6 py-4 lg:max-w-60">
         <div className="flex flex-col items-center mb-2">
-          <Avatar className="w-28 h-28">
-            <AvatarImage src="/images/user.jpg" alt="User" className="object-cover" />
-            <AvatarFallback className="p-2">
-              <UserIcon className="w-1/2 h-1/2" />
-            </AvatarFallback>
-          </Avatar>
-          <h2 className="text-xl font-semibold mt-2">{user?.name} {user?.surname}</h2>
+          {!isMounted ?
+            <>
+              <div className="w-28 h-28 animate-pulse bg-gray-200 rounded-full"></div>
+              <div className="w-28 h-6 animate-pulse bg-gray-200 rounded-md mt-2"></div>
+            </>
+            :
+            <>
+              <Avatar className="w-28 h-28">
+                <AvatarImage src="/images/user.jpg" alt="User" className="object-cover" />
+                <AvatarFallback className="p-2">
+                  <UserIcon className="w-1/2 h-1/2" />
+                </AvatarFallback>
+              </Avatar>
+              <h2 className="text-xl font-semibold mt-2">{user?.name} {user?.surname}</h2>
+            </>
+          }
         </div>
-        <Link href="/users/1/settings/info" className="flex flex-row justify-between items-center p-4 rounded-md hover:bg-muted active:bg-muted transition duration-500">
+        <Link href={`/users/${userId}/profile`} className="flex flex-row justify-between items-center p-4 rounded-md hover:bg-muted active:bg-muted transition duration-500">
           <div className="flex flex-row gap-x-2 items-center">
             <div>
               <UserIcon className="w-6 h-6 stroke-gray-500" />
             </div>
             <div>
-              <h3 className="text-md">My Profile</h3>
+              <h3 className="text-md">My profile</h3>
             </div>
           </div>
           <div>
