@@ -13,7 +13,18 @@ export async function middleware(request: NextRequest) {
         const cookies = request.headers.get("cookie") || "";
         let isUserActivated: boolean = false;
 
-        const apiResponse = await fetch("http://localhost:3000/api/auth/validate", {
+        const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+        const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+        const isPrivateRoute = privateRouteRegexes.some(regex => regex.test(nextUrl.pathname));
+        const isRouteForActivatedUser = activatedUserRouteRegexes.some(regex => regex.test(nextUrl.pathname));
+
+        if ((isPrivateRoute || isRouteForActivatedUser) && cookies === "") {
+            return NextResponse.redirect(new URL("/sign-in", request.url));
+        }
+
+        const internalApiUrl = `${process.env.NEXT_PUBLIC_DEV_URL}`;
+
+        const apiResponse = await fetch(`${internalApiUrl}/api/auth/validate`, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -21,11 +32,14 @@ export async function middleware(request: NextRequest) {
                 "Cookie": cookies,
             },
         });
+
         const data = await apiResponse.json();
+
         if (data.status === "ok") {
             isUserActivated = data.user.roles.includes("activated");
         }
-        console.log("Is user activated", isUserActivated);
+
+
         const apiUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/auth/healthcheck`;
         const response = await fetch(apiUrl, {
             method: "GET",
@@ -37,10 +51,6 @@ export async function middleware(request: NextRequest) {
         });
 
         const isAuth = response.ok;
-        const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-        const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-        const isPrivateRoute = privateRouteRegexes.some(regex => regex.test(nextUrl.pathname));
-        const isRouteForActivatedUser = activatedUserRouteRegexes.some(regex => regex.test(nextUrl.pathname));
 
         if ((isUserActivated && nextUrl.pathname === "/activate" && isAuth) || (!isAuth && nextUrl.pathname === "/activate")) {
             return NextResponse.redirect(new URL("/", request.url));

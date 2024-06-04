@@ -75,6 +75,9 @@ export type TReservation = {
     };
   };
   reservationTime: string;
+  reservationDate: {
+    seconds: number;
+  }
 };
 
 export type TRestaurant = {
@@ -114,7 +117,8 @@ export type TResponse = {
 }
 
 export type TAPIRestaurantResponse = TResponse & {
-  data: TRestaurant[]
+  restaurants?: TRestaurant[]
+  totalPages?: number;
 }
 
 export type TRestaurantReservationsResponse = TResponse & {
@@ -123,12 +127,21 @@ export type TRestaurantReservationsResponse = TResponse & {
   }
 }
 
+export type TReservationsResponse = TResponse & {
+  reservations?: TReservation[];
+}
+
+export type TRestaurantSearchSuggestionsResponse = TResponse & {
+  suggestions?: TRestaurant[];
+}
 
 export type FetchState = "loading" | "error" | "success";
 
 export const times = ["12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM"];
 
 export type ReponsiveDrawerDialogProps = {
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
   title: string;
   description?: string;
   triggerButtonText: string;
@@ -140,3 +153,15 @@ export type ReponsiveDrawerDialogProps = {
 export type MobileSideBarProps = {
   children: React.ReactNode;
 }
+
+export type RestaurantSearchQueryParams = {
+  q?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const CancelReservationSchema = z.object({
+  id: z.string().uuid("Invalid reservation id")
+});
+
+export type TCancelReservation = z.infer<typeof CancelReservationSchema>;

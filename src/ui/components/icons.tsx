@@ -149,7 +149,8 @@ export const GlobeIcon: React.FC<{ className?: string }> = ({ className = "" }) 
 
 export const CloseIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800" className={className}  >
-    <path className="fill-gray-500" d="M89.2,89.2c30-30,78.7-30,108.8,0l202,202l202-202c30-30,78.7-30,108.8,0c30,30,30,78.7,0,108.8l-202,202l202,202 c30,30,30,78.7,0,108.8s-78.7,30-108.8,0l-202-202l-202,202c-30,30-78.8,30-108.8,0c-30-30-30-78.7,0-108.8l202-202l-202-202 C59.2,167.9,59.2,119.2,89.2,89.2z" />
+    <line strokeWidth="40" strokeLinecap="round" strokeLinejoin="round" x1="95.5" y1="704.5" x2="704.5" y2="95.5" />
+    <line strokeWidth="40" strokeLinecap="round" strokeMiterlimit="10" x1="95.5" y1="95.5" x2="704.5" y2="704.5" />
   </svg>
 );
 

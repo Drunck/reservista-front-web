@@ -23,9 +23,8 @@ import { useRef, useState } from "react";
 import { Button } from "./button";
 import { ReponsiveDrawerDialogProps } from "@/lib/types";
 
-export function ResponsiveDrawerDialog({ ...props }: ReponsiveDrawerDialogProps) {
+export function ResponsiveDrawerDialog({ open, setOpen, ...props }: ReponsiveDrawerDialogProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false)
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   if (isDesktop) {

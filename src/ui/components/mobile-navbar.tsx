@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { BellIcon, BookingsIcon, HalfFullHeartIcon, HomeIcon, SearchIcon, UserIcon } from "./icons";
+import { usePathname, useRouter } from "next/navigation";
+import { BellIcon, BookingsIcon, HalfFullHeartIcon, HomeIcon, LongRightArrowIcon, SearchIcon, UserIcon } from "./icons";
 import useAuth from "@/lib/hooks/use-auth";
-import { MobilePopupSideBar } from "./mobile-sidebar";
 import { useEffect, useState } from "react";
 import { TUser } from "@/lib/types";
+import SearchInput from "./search-input";
 
 export default function MobileNavBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { auth, isLoading } = useAuth();
 
   const [user, setUser] = useState<TUser | undefined>(undefined);
@@ -36,19 +37,19 @@ export default function MobileNavBar() {
 
   return (
     <>
-      {pathname === "/" && (
+      {pathname === "/" || pathname === "/search" ? (
         <div className="py-2 px-4 w-full fixed z-10 bg-white shadow-md rounded-b-md lg:hidden">
+          {
+            pathname === "/search" && (
+              <div className="absolute border border-gray-200 rounded-full p-2 hover:cursor-pointer hover:bg-gray-100/50 active:bg-gray-100/50" onClick={() => router.back()} >
+                <LongRightArrowIcon className="w-5 h-5 stroke-gray-600 rotate-180" />
+              </div>
+            )
+          }
           <div className="relative w-full">
-            <form>
-              <label>
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <SearchIcon className="w-5 h-5 stroke-gray-500" />
-                </span>
-                <input className="w-full min-w-full py-1.5 px-4 pl-11 text-sm transition rounded-lg border border-gray-400 focus:outline focus:outline-1 focus:outline-gray-700 focus:ring-gray-200 focus:ring-[4px]" type="text" placeholder="Location, Restaurant, or Cuisine" />
-              </label>
-            </form>
+            <SearchInput />
           </div>
-        </div>)
+        </div>) : null 
       }
       <nav className="flex lg:hidden items-center justify-between flex-col w-full fixed inset-x-0 bottom-0 z-10 bg-white shadow-[0px_0px_5px_0px_#d5d5d5] ">
         <div className="w-full">

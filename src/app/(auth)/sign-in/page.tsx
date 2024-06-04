@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import SignInFormComponent from './form';
 import { kumbh_sans } from '../../../ui/fonts';
+import { Suspense } from 'react';
 
 export default function SignIn() {
   return (
@@ -14,7 +15,9 @@ export default function SignIn() {
           </span>
         </span>
         <div className="mt-5 w-full max-w-md">
-          <SignInFormComponent />
+          <Suspense>
+            <SignInFormComponent />
+          </Suspense>
         </div>
         <p className="mt-4">Don&apos;t have an account? <Link className="font-medium text-blue-500 hover:text-blue-700" href="/sign-up">Create an Account</Link></p>
       </div>

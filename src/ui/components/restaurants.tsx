@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import useAuth from "@/lib/hooks/use-auth";
 import { useEffect, useState } from "react";
-import { Auth, FetchState, TAPIRestaurantReponse, TRestaurant } from "@/lib/types";
+import { Auth, FetchState, TAPIRestaurantResponse, TRestaurant } from "@/lib/types";
 import { getAllRestaurants } from "@/lib/api";
 import { CuisineIcon, HalfFullStarIcon, MapPointIcon } from "./icons";
 import { ResponsiveDrawerDialog } from "./responsive-drawer-dialog";
@@ -20,13 +20,14 @@ export default function RestuarantCardtWrapper({ className }: { className?: stri
     const fetchAllRestaurants = async () => {
       setFetchState("loading");
 
-      const reponse: TAPIRestaurantReponse = await getAllRestaurants();
-      if (reponse.status === 200) {
-        setRestaurants(reponse.data);
+      const response: TAPIRestaurantResponse = await getAllRestaurants();
+      if (response.status === 200 && response.restaurants) {
+        console.log(response);
+        setRestaurants(response.restaurants);
         setFetchState("success");
       } else {
         setFetchState("error");
-        setFetchError(reponse?.message);
+        setFetchError(response?.message);
       }
     };
 
@@ -41,7 +42,7 @@ export default function RestuarantCardtWrapper({ className }: { className?: stri
   }
 
   return (
-    <div className={`grid grid-cols-1 gap-y-5 md:p-4 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:p-0 lg:gap-y-8 ${className}`}>
+    <div className={`grid grid-cols-1 py-14 gap-y-5 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:p-0 lg:gap-y-8 ${className}`}>
       {fetchState === "loading" &&
         <>
           {Array.from({ length: 12 }, (_, index) => (
@@ -101,18 +102,18 @@ export function NewRestaurantCard({ restaurant, auth, isLoading }: { restaurant:
                 <span>
                   Please activate your account to book a table.
                 </span>
-                <Link href="http://localhost:3000/activate" className="w-full rounded-lg p-2 flex justify-center text-sm bg-black border border-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Activate Account</Link>
+                <Link href="/activate" className="w-full rounded-md p-2 flex justify-center text-sm bg-black border border-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Activate Account</Link>
               </div>
             </ResponsiveDrawerDialog>
           ) : auth.isAuth ? (
-            <Link href={`restaurants/${restaurant.id}/booking`} className="w-full rounded-lg p-2 flex justify-center text-sm bg-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Book</Link>
+            <Link href={`restaurants/${restaurant.id}/booking`} className="w-full rounded-md p-2 flex justify-center text-sm bg-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Book</Link>
           ) : (
             <ResponsiveDrawerDialog title="Sign in" triggerButtonText="Book" closeButtonText="Cancel">
               <div className="flex flex-col gap-y-5">
                 <span>
                   Please sign in to your account to book a table.
                 </span>
-                <Link href="http://localhost:3000/sign-in" className="w-full rounded-lg p-2 flex justify-center text-sm bg-black border border-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Sign in</Link>
+                <Link href="/sign-in" className="w-full rounded-md p-2 flex justify-center text-sm bg-black border border-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Sign in</Link>
               </div>
             </ResponsiveDrawerDialog>
           )
@@ -124,7 +125,7 @@ export function NewRestaurantCard({ restaurant, auth, isLoading }: { restaurant:
   )
 }
 
-const RestaurantCardSkeleton = () => {
+export const RestaurantCardSkeleton = () => {
   return (
     <div className="flex flex-col rounded-xl shadow-[0px_2px_8px_0px_#63636333] animate-pulse">
       <div className="relative w-full h-[150px] max-w-full rounded-t-xl overflow-hidden bg-zinc-200 md:h-[200px]"></div>
@@ -142,7 +143,7 @@ const RestaurantCardSkeleton = () => {
           <div className="h-3 bg-zinc-200 rounded w-3/4"></div>
         </div>
         <div className="mt-5">
-          <div className="w-full h-10 bg-zinc-200 rounded-lg"></div>
+          <div className="w-full h-10 bg-zinc-200 rounded-md"></div>
         </div>
       </div>
     </div>

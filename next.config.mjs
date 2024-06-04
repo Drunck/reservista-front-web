@@ -8,8 +8,8 @@ const nextConfig = {
                 port: "",
             }
         ],
-        // domains: ["reservista-main-bucket.s3.amazonaws.com"],
     },
+    // output: "standalone", # uncomment this line to enable standalone mode for the docker image
 };
 
 export default nextConfig;

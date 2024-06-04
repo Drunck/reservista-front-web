@@ -53,12 +53,9 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
             reservation_time: res.reservationTime,
           }))
         );
-        console.log("WE ARE HERE 1", response.status, response.data?.reservations);
       } else if (response.status === 200 && !response.data.reservations) {
-        console.log("WE ARE HERE 2", response.status, response.data?.reservations);
         setReservations([]);
       } else {
-        console.log("WE ARE HERE 3", response.status, response.data?.reservations);
         toast({
           variant: "destructive",
           title: "Uh oh! Problem while fetching reservations.",
@@ -103,7 +100,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
     getRestaurant();
     fetchReservations();
     fetchTables();
-  }, [restaurantId]);
+  }, [restaurantId, toast]);
 
   useEffect(() => {
     if (selectedTime) {

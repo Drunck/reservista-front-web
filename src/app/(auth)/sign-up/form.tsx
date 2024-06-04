@@ -95,7 +95,7 @@ export default function SignUpFormComponent() {
     } else if (response?.serverError) {
       setServerError(response.serverError);
     } else {
-      setAuth(true);
+      setAuth({ isAuth: true });
       router.push("/activate");
     }
 
