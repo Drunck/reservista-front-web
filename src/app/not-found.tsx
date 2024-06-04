@@ -10,7 +10,7 @@ export default function Error() {
       <h1>404</h1>
       <div className="flex flex-col justify-center items-center">
         <h2>Something went wrong!</h2>
-        The page you were looking for doesn't exist
+        The page you were looking for doesn&apos;t exist
       </div>
       <Button onClick={() => { router.push("/") }}>Back to Homepage</Button>
     </div>

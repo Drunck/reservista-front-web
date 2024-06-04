@@ -18,25 +18,24 @@ export default function NavBar() {
   const [user, setUser] = useState<TUser | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const getUser = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/users/view/id/${auth.user_id}`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      }
-    } catch (error) {
-      console.error("Error fetching user: ", error);
-    } finally {
-      return;
-    }
-  };
 
   useEffect(() => {
-
+    const getUser = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/users/view/id/${auth.user_id}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+        }
+      } catch (error) {
+        console.error("Error fetching user: ", error);
+      } finally {
+        return;
+      }
+    };
     if (auth.isAuth) {
       getUser();
     } else {
