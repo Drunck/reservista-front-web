@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { getRestaurantById } from "@/lib/api";
 import { TRestaurant, times } from "@/lib/types";
 import useAuth from "@/lib/hooks/use-auth";
+import MobileTopNavigationBar from "@/ui/components/mobile-top-navigation-bar";
 
 export default function RestaurantPage({ params }: { params: { restaurantId: string } }) {
   const pathname = usePathname();
@@ -69,6 +70,9 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
 
   return (
     <>
+      {/* {!isDesktop && (
+        <MobileTopNavigationBar className="bg-transparent"/>
+      )} */}
       <div className="relative w-full h-96">
         {
           restaurant.image_urls ? (

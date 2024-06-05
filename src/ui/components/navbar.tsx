@@ -16,7 +16,6 @@ export default function NavBar() {
   const pathname = usePathname();
   const { auth, isLoading } = useAuth();
   const [user, setUser] = useState<TUser | undefined>(undefined);
-  const [isAdmin, setIsAdmin] = useState(false);
 
 
   useEffect(() => {
@@ -59,7 +58,7 @@ export default function NavBar() {
         <div className="flex flex-row items-center gap-x-3 text-nowrap">
           {isLoading ?
             <div>
-              <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+              {/* <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div> */}
             </div>
             : auth.isAuth || user !== undefined ?
               <>

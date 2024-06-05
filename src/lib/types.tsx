@@ -8,17 +8,17 @@ export const SignInSchema = z.object({
 export type TSignIn = z.infer<typeof SignInSchema>;
 
 export const SignUpSchema = z.object({
-  name: z.string().min(1, "First name must be at least 1 characters").max(64, "First name must be at most 64 characters"),
-  surname: z.string().min(1, "Last name must be at least 1 characters").max(64, "Last name must be at most 64 characters"),
-  phone: z.string().min(12, "Phone number must be at least 12 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters").max(64, "Password must be at most 64 characters").regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,]).*$/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
+  name: z.string().trim().min(1, "First name must be at least 1 characters").max(64, "First name must be at most 64 characters"),
+  surname: z.string().trim().min(1, "Last name must be at least 1 characters").max(64, "Last name must be at most 64 characters"),
+  phone: z.string().trim().min(12, "Phone number must be at least 12 characters"),
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().trim().min(8, "Password must be at least 8 characters").max(64, "Password must be at most 64 characters").regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,]).*$/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
 });
 
 export type TSignUp = z.infer<typeof SignUpSchema>;
 
 export const ActivationCodeSchema = z.object({
-  Code: z.string().length(6, "Activation code must be 6 characters")
+  Code: z.string().trim().length(6, "Activation code must be 6 characters")
 });
 
 export type TActivationCode = z.infer<typeof ActivationCodeSchema>;
@@ -105,8 +105,12 @@ export type TRestaurantTables = {
   status?: "available" | "reserved" | "selected";
 }
 
+export const ReservationSchema = z.object({
+  table_id: z.string().uuid("Invalid table id"),
+  reservation_time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format")
+});
+
 export type ReservationInput = {
-  user_id: string;
   table_id: string;
   reservation_time: string;
 }
@@ -116,7 +120,7 @@ export type TResponse = {
   message: string;
 }
 
-export type TAPIRestaurantResponse = TResponse & {
+export type TRestaurantsResponse = TResponse & {
   restaurants?: TRestaurant[]
   totalPages?: number;
 }
@@ -165,3 +169,12 @@ export const CancelReservationSchema = z.object({
 });
 
 export type TCancelReservation = z.infer<typeof CancelReservationSchema>;
+
+export const PaginationsSchema = z.object({
+  currentPage: z.number().int().min(1, "Current page must be at least 1").optional(),
+  totalPages: z.number().int().min(1, "Total pages must be at least 1").optional(),
+  baseUrl: z.string().trim().url("Invalid base url").optional(),
+  queryParams: z.record(z.string().trim()).optional()
+})
+
+export type TPaginationProps = z.infer<typeof PaginationsSchema>;

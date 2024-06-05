@@ -46,7 +46,6 @@ export default function SearchInput() {
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    console.log("SUGGESTION CLICKED: ", suggestion)
     inputRef.current?.blur();
     setQuery(suggestion);
     setSuggestions(undefined);

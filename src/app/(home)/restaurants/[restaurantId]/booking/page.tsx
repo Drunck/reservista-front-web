@@ -16,8 +16,9 @@ import { useToast } from "@/components/ui/use-toast";
 export default function TableBooking({ params }: { params: { restaurantId: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const { toast } = useToast()
-  const { auth } = useAuth();
+  const { isLoading } = useAuth();
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const restaurantId = params.restaurantId;
   const time = searchParams.get("time") || times[0];
@@ -126,18 +127,16 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
   };
 
   const handleReservation = async () => {
-    if (auth.user_id && selectedTime && selectedTable !== null) {
+    if (selectedTime && selectedTable !== null) {
       const selectedTableId = tables.find(table => table.table_number === selectedTable)?.id;
       if (selectedTableId) {
         const formData = {
-          user_id: auth.user_id as string,
           table_id: selectedTableId,
           reservation_time: selectedTime,
         };
         const response = await makeTableReservation(formData);
         if (response.status === 200 || response.status === 201) {
           toast({
-            variant: "green",
             title: "Reservation successful!",
             description: "Your reservation has been successfully made.",
           })
@@ -195,58 +194,63 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
           </div>
           <div className="flex flex-col gap-4 relative">
             <div className="col-span-2">
-              <h3 className="text-lg font-semibold">{restaurant.name}</h3>
+              <h3 className="text-base font-semibold">{restaurant.name}</h3>
               <div className="relative flex flex-row items-center gap-x-1">
                 <MapPointIcon className="w-4 h-4 fill-gray-500" />
-                <p className="text-base truncate text-zinc-500">{restaurant.address}</p>
+                <p className="text-sm truncate text-zinc-500">{restaurant.address}</p>
               </div>
-              <p className="text-base text-zinc-500">Cuisine</p>
+              <p className="text-sm text-zinc-500">Cuisine</p>
             </div>
           </div>
         </div>
-        <div className="mb-6">
-          <h2 className="text-xl mb-4 font-semibold">Time</h2>
-          <div className="flex flex-row flex-wrap gap-4">
-            {times.map(time => (
-              <TimeButton
-                key={time}
-                time={time}
-                selected={time === selectedTime}
-                onClick={() => handleTimeButtonClick(time)}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col gap-y-5">
-          <h2 className="text-xl font-semibold">Choose Table</h2>
-          <div className="flex gap-x-5">
-            <div className="flex flex-row gap-x-2 items-center">
-              <div className="w-5 h-5 rounded-md border border-black flex justify-center items-center"></div>
-              <p className="text-sm md:text-base">Available</p>
+        {!isLoading && (
+          <>
+            <div className="mb-6">
+              <h2 className="text-xl mb-4 font-semibold">Time</h2>
+              <div className="flex flex-row flex-wrap gap-4">
+                {times.map(time => (
+                  <TimeButton
+                    key={time}
+                    time={time}
+                    selected={time === selectedTime}
+                    onClick={() => handleTimeButtonClick(time)}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="flex flex-row gap-x-2 items-center">
-              <div className="w-5 h-5 rounded-md border bg-red-200 border-red-400 flex justify-center items-center"></div>
-              <p className="text-sm md:text-base">Reserved</p>
+            <div className="flex flex-col gap-y-5">
+              <h2 className="text-xl font-semibold">Choose Table</h2>
+              <div className="flex gap-x-5">
+                <div className="flex flex-row gap-x-2 items-center">
+                  <div className="w-5 h-5 rounded-md border border-black flex justify-center items-center"></div>
+                  <p className="text-sm md:text-base">Available</p>
+                </div>
+                <div className="flex flex-row gap-x-2 items-center">
+                  <div className="w-5 h-5 rounded-md border bg-red-200 border-red-400 flex justify-center items-center"></div>
+                  <p className="text-sm md:text-base">Reserved</p>
+                </div>
+                <div className="flex flex-row gap-x-2 items-center">
+                  <div className="w-5 h-5 rounded-md border bg-black border-black flex justify-center items-center"></div>
+                  <p className="text-sm md:text-base">Selected</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                {tables.map(table => (
+                  <TableButton
+                    key={table.id}
+                    tableNumber={table.table_number}
+                    status={table.status === "reserved" ? "reserved" : table.table_number === selectedTable ? "selected" : "available"}
+                    onClick={() => table.status === "available" && setSelectedTable(table.table_number)}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="flex flex-row gap-x-2 items-center">
-              <div className="w-5 h-5 rounded-md border bg-black border-black flex justify-center items-center"></div>
-              <p className="text-sm md:text-base">Selected</p>
+            <div className="flex flex-col justify-start gap-y-5 mt-10">
+              <Button className="px-4 py-2 rounded-md max-w-64" onClick={handleReservation}>Reserve Table</Button>
             </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            {tables.map(table => (
-              <TableButton
-                key={table.id}
-                tableNumber={table.table_number}
-                status={table.status === "reserved" ? "reserved" : table.table_number === selectedTable ? "selected" : "available"}
-                onClick={() => table.status === "available" && setSelectedTable(table.table_number)}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col justify-start gap-y-5 mt-10">
-          <Button className="px-4 py-2 rounded-md max-w-64" onClick={handleReservation}>Reserve Table</Button>
-        </div>
+          </>
+        )}
+
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { ActivationCodeSchema, CancelReservationSchema, ReservationInput, RestaurantSearchQueryParams, SignInSchema, SignUpSchema, TAPIRestaurantResponse, TActivationCode, TCancelReservation, TReservationsResponse, TResponse, TRestaurantReservationsResponse, TRestaurantSearchSuggestionsResponse, TSignIn, TSignUp } from "./types";
+import { ActivationCodeSchema, CancelReservationSchema, ReservationInput, RestaurantSearchQueryParams, SignInSchema, SignUpSchema, TRestaurantsResponse, TActivationCode, TCancelReservation, TReservationsResponse, TResponse, TRestaurantReservationsResponse, TRestaurantSearchSuggestionsResponse, TSignIn, TSignUp } from "./types";
 import { capitalizeFirstLetter } from "./utils";
 
 export const signInUser = async (formData: TSignIn) => {
@@ -181,7 +181,7 @@ export const signOutUser = async () => {
   }
 }
 
-export const getAllRestaurants = async ({ q, page = 1, limit = 10 }: RestaurantSearchQueryParams = {}): Promise<TAPIRestaurantResponse> => {
+export const getAllRestaurants = async ({ q, page = 1, limit = 20 }: RestaurantSearchQueryParams = {}): Promise<TRestaurantsResponse> => {
   try {
     const url = new URL(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/restaurants/all`);
     if (q) {
@@ -190,18 +190,20 @@ export const getAllRestaurants = async ({ q, page = 1, limit = 10 }: RestaurantS
     url.searchParams.append("page", page.toString());
     url.searchParams.append("limit", limit.toString());
 
-    const response = await fetch(url.toString(), {
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json"
+      },
       method: "GET",
       credentials: "include"
     });
 
-    if (response.ok) {
+    if (response.status === 200) {
       const data = await response.json();
-      if (!data) {
+      if (!data.restaurants) {
         return {
-          status: 400,
+          status: 404,
           message: "No restaurants found",
-          restaurants: [],
         };
       }
 
@@ -215,13 +217,11 @@ export const getAllRestaurants = async ({ q, page = 1, limit = 10 }: RestaurantS
       return {
         status: 500,
         message: "No Server Response",
-        restaurants: [],
       };
     } else {
       return {
         status: 400,
         message: "Failed to fetch restaurants",
-        restaurants: [],
       };
     }
   } catch (error) {
@@ -229,7 +229,6 @@ export const getAllRestaurants = async ({ q, page = 1, limit = 10 }: RestaurantS
     return {
       status: 400,
       message: "Failed to fetch restaurants",
-      restaurants: [],
     };
   }
 }
@@ -394,7 +393,7 @@ export const getSearchSuggestions = async (searchQuery: string): Promise<TRestau
   };
 }
 
-export const getUserReservations = async (): Promise<TReservationsResponse>=> {
+export const getUserReservations = async (): Promise<TReservationsResponse> => {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/reservations/all/user`, {
       method: "GET",
@@ -439,7 +438,7 @@ export const cancelReservation = async ({ id }: TCancelReservation): Promise<TRe
     const result = CancelReservationSchema.safeParse({ id });
     if (!result.success) {
       return {
-        status: 400, 
+        status: 400,
         message: "Invalid reservation id"
       };
     }

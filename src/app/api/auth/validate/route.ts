@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     const secretKey = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SIGNING_KEY);
     const cookies = request.headers.get("cookie") || "";
     const token = request.cookies.get("jwt")?.value || "";
+    // const { token: tokenFromHeader } = request.headers.get("jwt") ? { token: request.headers.get("jwt")?.split(" ")[1] } : { token: "" };
 
     if (token !== "") {
       try {
