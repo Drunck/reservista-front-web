@@ -1,4 +1,4 @@
-import RestuarantCardtWrapper from "@/ui/components/restaurants"
+import RestuarantCardtWrapper from "@/ui/custom-components/restaurants"
 
 export default async function Pages({ params }: { params: { pageNumber: string } }) {
   const page = params.pageNumber ? parseInt(params.pageNumber) : 1;

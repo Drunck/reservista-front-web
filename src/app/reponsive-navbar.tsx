@@ -1,7 +1,7 @@
 "use client";
 
-import NavBar from "@/ui/components/navbar";
-import MobileNavBar from "@/ui/components/mobile-navbar";
+import NavBar from "@/ui/custom-components/navbar";
+import MobileNavBar from "@/ui/custom-components/mobile-navbar";
 import { useEffect, useState } from "react";
 import useMediaQuery from "@/lib/hooks/use-media-query";
 

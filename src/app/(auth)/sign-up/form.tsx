@@ -2,8 +2,8 @@
 import { signUpUser } from '@/lib/api';
 import useAuth from '@/lib/hooks/use-auth';
 import { SignUpSchema, TSignUp } from '@/lib/types';
-import { Button } from '@/ui/components/button';
-import { CheckMarkIcon, DangerCircleIcon, LoadingIcon } from '@/ui/components/icons';
+import { Button } from '@/ui/custom-components/button';
+import { CheckMarkIcon, DangerCircleIcon, LoadingIcon } from '@/ui/custom-components/icons';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';

@@ -1,6 +1,7 @@
 :root {
     --dark-blue-1: #293241;
     --search-icon: url('data:image/svg+xml,<%3Fxml version="1.0" encoding="utf-8"%3F><svg width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="%23000000" stroke-width="1" stroke-linecap="round" stroke-linejoin="miter"><circle cx="11" cy="11" r="9" fill="none"></circle><line x1="17.5" y1="17.5" x2="22" y2="22"></line></svg>');
+    --admin-sidebar-height: calc(100vh - 56px);
 }
 
 .search-icon::before {

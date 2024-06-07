@@ -23,7 +23,19 @@ export const ActivationCodeSchema = z.object({
 
 export type TActivationCode = z.infer<typeof ActivationCodeSchema>;
 
+export const UserSchema = z.object({
+  id: z.string().uuid("Invalid user id").optional(),
+  name: z.string().trim().min(1, "First name must be at least 1 characters").max(64, "First name must be at most 64 characters"),
+  surname: z.string().trim().min(1, "Last name must be at least 1 characters").max(64, "Last name must be at most 64 characters"),
+  phone: z.string().trim().min(12, "Phone number must be at least 12 characters"),
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().trim().min(8, "Password must be at least 8 characters").max(64, "Password must be at most 64 characters").regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,]).*$/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character").optional(),
+});
+
+export type User = z.infer<typeof UserSchema>;
+
 export type TUser = {
+  id?: string;
   name: string;
   surname: string;
   phone: string;
@@ -60,20 +72,24 @@ export type TAuthContext = {
   setIsLoading: (isLoading: boolean) => void;
 }
 
+export const TableSchema = z.object({
+  id: z.string().uuid("Invalid table id"),
+  NumberOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
+  IsReserved: z.boolean(),
+  TableNumber: z.number().int().min(1, "Table number must be at least 1"),
+  restaurant: z.object({
+    id: z.string().uuid("Invalid restaurant id"),
+    name: z.string().trim().min(1, "Restaurant name must be at least 1 characters").max(64, "Restaurant name must be at most 64 characters"),
+    address: z.string().trim().min(1, "Restaurant address must be at least 1 characters").max(64, "Restaurant address must be at most 64 characters"),
+    contact: z.string().trim().min(1, "Restaurant contact must be at least 1 characters").max(64, "Restaurant contact must be at most 64 characters"),
+  })
+});
+
+export type Table = z.infer<typeof TableSchema>;
+
 export type TReservation = {
   id: string;
-  table: {
-    id: string;
-    NumberOfSeats: number;
-    IsReserved: boolean;
-    TableNumber: number;
-    restaurant: {
-      id: string;
-      name: string;
-      address: string;
-      contact: string;
-    };
-  };
+  table: Table;
   reservationTime: string;
   reservationDate: {
     seconds: number;
@@ -149,7 +165,7 @@ export type ReponsiveDrawerDialogProps = {
   title: string;
   description?: string;
   triggerButtonText: string;
-  triggerButtonOption?: string;
+  triggerButtonVariant?: string;
   closeButtonText: string;
   children: React.ReactNode;
 }

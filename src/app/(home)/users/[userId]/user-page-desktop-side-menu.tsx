@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAuth from "@/lib/hooks/use-auth";
 import useMediaQuery from "@/lib/hooks/use-media-query";
 import { TUser } from "@/lib/types";
-import { BookingsIcon } from "@/ui/components/icons";
+import { BookingsIcon } from "@/ui/custom-components/icons";
 import clsx from "clsx";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";

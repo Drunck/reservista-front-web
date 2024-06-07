@@ -4,22 +4,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cancelReservation, getUserReservations } from "@/lib/api";
 import { FetchState, TReservation } from "@/lib/types";
 import useMediaQuery from "@/lib/hooks/use-media-query";
-import { Button } from "@/ui/components/button";
-import { CuisineIcon, HalfFullStarIcon, MapPointIcon } from "@/ui/components/icons";
-import MobileTopNavigationBar from "@/ui/components/mobile-top-navigation-bar";
-import { ResponsiveDrawerDialog } from "@/ui/components/responsive-drawer-dialog";
+import { Button } from "@/ui/custom-components/button";
+import { CuisineIcon, HalfFullStarIcon, MapPointIcon } from "@/ui/custom-components/icons";
+import MobileTopNavigationBar from "@/ui/custom-components/mobile-top-navigation-bar";
+import { ResponsiveDrawerDialog } from "@/ui/custom-components/responsive-drawer-dialog";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { format, isBefore, parseISO } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
+import { formatDate } from "@/lib/utils/format-date";
 
 export default function UserBookingsComponent({ userId }: { userId: string }) {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [userReservations, setUserReservations] = useState<TReservation[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [serverError, setServerError] = useState("");
-  const [FetchState, setFetchState] = useState<FetchState>("loading");
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [fetchState, setFetchState] = useState<FetchState>("loading");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { toast } = useToast();
 
@@ -40,19 +41,22 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
 
       if (response.status === 200) {
         setFetchState("success");
+        fetchUserReservations();
         toast({
           variant: "green",
           title: "Reservation canceled successfully",
           description: "Your reservation has been canceled successfully.",
         });
-        setDrawerOpen(false);
       } else {
+        setFetchState("error");
+        fetchUserReservations();
         toast({
           variant: "destructive",
           title: "Uh oh! Problem while canceling the reservation.",
           description: "An error occurred while cancelling your reservation. Please try again later.",
         });
       }
+      setDialogOpen(false);
     }
   }
 
@@ -60,8 +64,6 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
     fetchUserReservations();
     setIsMounted(true);
   }, []);
-
-  console.log("USER RESERVATIONS IN COMPONENT", userReservations);
 
   const currentDate = new Date();
 
@@ -90,7 +92,7 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
       {!isDesktop && (
         <MobileTopNavigationBar menuName="My Bookings" />
       )}
-      <div className="flex flex-col p-4 lg:p-0">
+      <div className="flex flex-col p-4 pb-16 lg:p-0">
         <div className="flex flex-col w-full gap-y-3">
           {isDesktop &&
             <div className="flex flex-col mb-2 border-b border-zinc-200 pb-4">
@@ -106,7 +108,7 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
               <TabsContent value="active">
                 <div className="my-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {activeReservations.length === 0 && (
+                    {(fetchState !== "loading" && activeReservations.length === 0) && (
                       <div className="col-span-1 flex flex-col bg-white rounded-lg border shadow-sm p-4 md:col-span-2 lg:col-span-3">
                         <span className="text-gray-500 text-center">
                           You have no active reservations
@@ -118,13 +120,21 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
                         <div className="flex flex-row">
                           <div className="flex flex-row w-full justify-between items-center px-4 py-2 border-b">
                             <span className="font-bold text-sm">Date</span>
-                            <span className="text-sm">{format(new Date(reservation.reservationDate.seconds * 1000), "dd.MM.yyyy")} - {reservation.reservationTime}</span>
+                            <span className="text-sm">{formatDate(new Date(reservation.reservationDate.seconds * 1000))} - {reservation.reservationTime}</span>
                           </div>
                         </div>
                         <div className="px-4 py-2 w-full">
                           <div className="flex flex-row gap-x-4 w-full">
                             <div className="w-full max-w-20 h-20 relative overflow-hidden rounded-md">
-                              <Image src="/images/restaurants/tanuki.png" alt={reservation.table.restaurant.name} className="w-full h-full object-cover" fill priority />
+                              {/* {
+                                reservation.table.restaurant?.image_urls ? (
+                                  <Image src={`${restaurant.image_urls[0]}`} alt="Restaurant" className="w-full h-full object-cover" fill priority placeholder="blur"
+                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII=" />
+                                ) : (
+                                  <div className="min-w-md min-h-md min-h-96 bg-gray-200"></div>
+                                )
+                              } */}
+                              <div className="min-w-md min-h-96 bg-gray-200"></div>
                             </div>
                             <div className="flex flex-col w-full">
                               <div className="flex flex-row justify-between items-center gap-x-2 text-sm">
@@ -186,16 +196,18 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
                             </div>
                           </ResponsiveDrawerDialog>
                           <ResponsiveDrawerDialog
-                            open={drawerOpen}
-                            setOpen={setDrawerOpen}
-                            title="Cancel reservation"
+                            open={dialogOpen}
+                            setOpen={setDialogOpen}
+                            title="Are you sure you want to cancel this reservation?"
                             triggerButtonText="Cancel"
                             closeButtonText="Close"
-                            triggerButtonOption="outlined">
+                            triggerButtonVariant="outlined"
+                          >
                             <div className="flex flex-col gap-y-5 text-sm md:text-base">
                               <div className="flex flex-col gap-y-2">
-                                <span className="font-bold">Are you sure you want to cancel this reservation?</span>
-                                <span className="text-gray-500">You can cancel your reservation up to 24 hours before the reservation time.</span>
+                                {/* <span className="font-bold">Are you sure you want to cancel this reservation?</span> */}
+                                {/* <span className="text-gray-500">You can cancel your reservation up to 24 hours before the reservation time.</span> */}
+                                <span className="text-gray-500">This action cannot be undone.</span>
                               </div>
                               <div className="flex flex-row gap-2">
                                 <Button className="w-full" onClick={() => handleConfirmCancel(reservation.id)}>Confirm</Button>
@@ -211,7 +223,7 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
               <TabsContent value="completed">
                 <div className="my-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {completedReservations.length === 0 && (
+                    {(fetchState !== "loading" && completedReservations.length === 0) && (
                       <div className="col-span-1 flex flex-col bg-white rounded-lg border shadow-sm p-4 md:col-span-2 lg:col-span-3">
                         <span className="text-gray-500 text-center">
                           You have no completed reservations
@@ -229,7 +241,15 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
                         <div className="px-4 py-2 w-full">
                           <div className="flex flex-row gap-x-4 w-full">
                             <div className="w-full max-w-20 h-20 relative overflow-hidden rounded-md">
-                              <Image src="/images/restaurants/tanuki.png" alt={reservation.table.restaurant.name} className="w-full h-full object-cover" fill priority />
+                              {/* {
+                                reservation.table.restaurant?.image_urls ? (
+                                  <Image src={`${restaurant.image_urls[0]}`} alt="Restaurant" className="w-full h-full object-cover" fill priority placeholder="blur"
+                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII=" />
+                                ) : (
+                                  <div className="min-w-md min-h-md min-h-96 bg-gray-200"></div>
+                                )
+                              } */}
+                              <div className="min-w-md min-h-96 bg-gray-200"></div>
                             </div>
                             <div className="flex flex-col w-full">
                               <div className="flex flex-row justify-between items-center gap-x-2 text-sm">

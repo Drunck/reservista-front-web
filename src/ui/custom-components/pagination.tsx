@@ -3,10 +3,6 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
 export default function Pagination({ currentPage = 1, totalPages = 1, baseUrl, queryParams = undefined }: TPaginationProps) {
-  const result = PaginationsSchema.safeParse({ currentPage, totalPages, baseUrl, queryParams });
-  if (!result.success) {
-    console.log("ERROR PAGINATION", result.error.issues);
-  }
   const generatePageLink = (page: number) => {
     if (queryParams) {
       const params = new URLSearchParams({ ...queryParams, page: page.toString() });
@@ -27,7 +23,6 @@ export default function Pagination({ currentPage = 1, totalPages = 1, baseUrl, q
     }
   };
 
-  console.log("GET PAGE NUMBERS", getPageNumbers());
   return (
     <div className="mx-auto flex w-full justify-center">
       <ul className="flex flex-row items-center gap-1">

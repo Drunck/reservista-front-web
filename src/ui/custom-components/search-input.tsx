@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { CloseIcon, SearchIcon } from "./icons";
+import { CloseIcon, LongRightArrowIcon, SearchIcon } from "./icons";
 import { useDebouncedCallback } from "use-debounce";
 import { TRestaurant } from "@/lib/types";
 import { getSearchSuggestions } from "@/lib/api";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./button";
 import useMediaQuery from "@/lib/hooks/use-media-query";
 
 export default function SearchInput() {
   const router = useRouter();
+  const pathname = usePathname();
   const uslSearchQuery = useSearchParams().get("search_query")?.toString();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<TRestaurant[] | undefined>(undefined);
@@ -59,7 +60,7 @@ export default function SearchInput() {
       router.push(`/search?search_query=${encodeURIComponent(query)}`);
     }
   };
-  
+
   useEffect(() => {
     handleDebouncedSearch(query);
   }, [query, handleDebouncedSearch]);
@@ -73,6 +74,13 @@ export default function SearchInput() {
 
   return (
     <div className="relative max-w-full w-full flex flex-row">
+      {
+        (pathname === "/search" && !isDesktop) && (
+          <div className="border border-gray-300 rounded-full p-2 hover:cursor-pointer hover:bg-gray-100/50 active:bg-gray-100/50 mr-2" onClick={() => router.back()} >
+            <LongRightArrowIcon className="w-5 h-5 stroke-gray-500 rotate-180" />
+          </div>
+        )
+      }
       <form className="relative gap-x-2 w-full" onSubmit={handleSubmit}>
         <label className="w-full">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -84,7 +92,7 @@ export default function SearchInput() {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             value={query}
-            className="box-border w-full min-w-full py-1.5 px-4 pl-11 transition rounded-md lg:rounded-l-md lg:rounded-none border border-gray-400 focus:outline focus:outline-1 focus:outline-gray-700"
+            className="box-border w-full min-w-full py-1.5 px-4 pl-11 transition rounded-md lg:rounded-l-md lg:rounded-none border border-gray-300 focus:outline focus:outline-1 focus:outline-gray-600"
             type="text" placeholder="Location, Restaurant, or Cuisine"
           />
           {query && (

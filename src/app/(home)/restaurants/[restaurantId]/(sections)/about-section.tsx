@@ -1,5 +1,5 @@
 import { TRestaurant } from "@/lib/types";
-import { FacebookIcon, GlobeIcon, InstagramIcon, PhoneIcon } from "@/ui/components/icons";
+import { FacebookIcon, GlobeIcon, InstagramIcon, PhoneIcon } from "@/ui/custom-components/icons";
 import Link from "next/link";
 
 export default function AboutSection({restaurant}: {restaurant: TRestaurant}) {

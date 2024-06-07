@@ -329,21 +329,27 @@ export const makeTableReservation = async (formData: ReservationInput): Promise<
       credentials: "include",
       body: JSON.stringify(formData)
     });
-
+    const data = await response.json();
     if (response.status === 200 || response.status === 201) {
       return {
         status: 200,
         message: "Reservation made successfully"
       };
-    }
+    } else if (response.status === 400 && data.message.includes("table occupied")) {
+      return {
+        status: 400,
+        message: "Table is already reserved at that time"
+      };
+    } 
   } catch (error: any) {
     if (!error.response) {
       console.error("Tabel Reservations: No server response", error);
       return {
-        status: 400,
+        status: 500,
         message: "No server response"
       };
     }
+
     console.error("Error making reservation: ", error);
     return {
       status: 400,

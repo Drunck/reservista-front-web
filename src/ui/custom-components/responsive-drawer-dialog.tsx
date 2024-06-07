@@ -19,7 +19,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import useMediaQuery from "@/lib/hooks/use-media-query";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "./button";
 import { ReponsiveDrawerDialogProps } from "@/lib/types";
 
@@ -31,7 +31,7 @@ export function ResponsiveDrawerDialog({ open, setOpen, ...props }: ReponsiveDra
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="w-full" type="submit" option={props.triggerButtonOption} >{props.triggerButtonText}</Button>
+          <Button className="w-full" type="submit" variant={props.triggerButtonVariant} >{props.triggerButtonText}</Button>
         </DialogTrigger>
         <DialogContent className="max-w-full md:max-w-xl">
           <DialogHeader>
@@ -47,7 +47,7 @@ export function ResponsiveDrawerDialog({ open, setOpen, ...props }: ReponsiveDra
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button className="w-full" option={props.triggerButtonOption}>{props.triggerButtonText}</Button>
+        <Button className="w-full" variant={props.triggerButtonVariant}>{props.triggerButtonText}</Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
@@ -59,7 +59,7 @@ export function ResponsiveDrawerDialog({ open, setOpen, ...props }: ReponsiveDra
         </div>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button ref={buttonRef} option="outlined">{props.closeButtonText}</Button>
+            <Button ref={buttonRef} variant="outlined">{props.closeButtonText}</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

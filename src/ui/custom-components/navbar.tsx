@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { kumbh_sans } from "../fonts";
 import useAuth from "@/lib/hooks/use-auth";
-import { BookingsIcon, LoginIcon, SearchIcon } from "./icons";
+import { BookingsIcon, LoginIcon } from "./icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { LogOut, PieChartIcon, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePathname, useRouter } from "next/navigation";
 import { TUser } from "@/lib/types";
@@ -14,7 +14,7 @@ import SearchInput from "./search-input";
 
 export default function NavBar() {
   const pathname = usePathname();
-  const { auth, isLoading } = useAuth();
+  const { auth, isLoading, setAuth } = useAuth();
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
 
@@ -44,13 +44,16 @@ export default function NavBar() {
 
   return (
     <div className="fixed w-screen shadow-md top-0 z-10 bg-white">
-      <nav className="relative w-full max-w-7xl m-auto flex flex-row items-center justify-between px-4">
+      <nav className={
+        `relative w-full m-auto flex flex-row items-center justify-between px-4
+      ${pathname.includes("/admin") ? "" : "bg-white max-w-7xl"}`
+      }>
         <div className="flex flex-row items-center">
           <div className="flex flex-row items-center py-2">
             <Link href="/" className={`${kumbh_sans.className} font-bold text-4xl`}>reservista</Link>
           </div>
         </div>
-        <div className="absolute mx-auto left-0 right-0 py-4 w-full max-w-2xl text-md">
+        <div className="absolute mx-auto left-0 right-0 py-2 w-full max-w-2xl text-md">
           <div className="relative w-full">
             <SearchInput />
           </div>
@@ -82,8 +85,14 @@ export default function NavBar() {
   )
 }
 
+type UserDropdownMenuProps = {
+  user: TUser | undefined,
+  userId: string | undefined,
+  user_roles: string[] | undefined
+}
 
-export function UserDropdownMenu({ user, userId, user_roles }: { user: TUser | undefined, userId: string | undefined, user_roles: string[] | undefined }) {
+
+export function UserDropdownMenu({ user, userId, user_roles }: UserDropdownMenuProps) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const { setAuth } = useAuth();
@@ -119,7 +128,7 @@ export function UserDropdownMenu({ user, userId, user_roles }: { user: TUser | u
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 mt-3">
+      <DropdownMenuContent align="end" className="w-56 mt-3">
         <DropdownMenuGroup>
           <div className="flex flex-row items-center gap-x-3 p-2">
             <Avatar className="w-10 h-10">
@@ -132,13 +141,22 @@ export function UserDropdownMenu({ user, userId, user_roles }: { user: TUser | u
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <Link href="/admin/dashboard">
+            <DropdownMenuItem className="cursor-pointer">
+              <PieChartIcon className="mr-2 h-4 w-4" />
+              <span>Admin dashboard</span>
+            </DropdownMenuItem>
+          </Link>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
         {
           (user_roles ?? []).includes("admin") && (
             <>
               <DropdownMenuGroup>
                 <Link href="/admin/dashboard">
                   <DropdownMenuItem className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
+                    <PieChartIcon className="mr-2 h-4 w-4" />
                     <span>Admin dashboard</span>
                   </DropdownMenuItem>
                 </Link>

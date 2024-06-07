@@ -1,6 +1,6 @@
 "use client";
 
-import { CuisineIcon, HalfFullStarIcon, MapPointIcon } from "@/ui/components/icons";
+import { CuisineIcon, HalfFullStarIcon, MapPointIcon } from "@/ui/custom-components/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { getRestaurantById } from "@/lib/api";
 import { TRestaurant, times } from "@/lib/types";
 import useAuth from "@/lib/hooks/use-auth";
-import MobileTopNavigationBar from "@/ui/components/mobile-top-navigation-bar";
+import MobileTopNavigationBar from "@/ui/custom-components/mobile-top-navigation-bar";
 
 export default function RestaurantPage({ params }: { params: { restaurantId: string } }) {
   const pathname = usePathname();
@@ -195,7 +195,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
             <div className="flex flex-row justify-center w-full">
               {
                 auth.isAuth ? (
-                  <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
+                  <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-64 bg-black text-sm text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
                 ) : (
                   <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Login to Book</Link>
                 )

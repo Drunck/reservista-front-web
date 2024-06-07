@@ -5,8 +5,8 @@ import { SignInSchema, TSignIn } from '@/lib/types';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from '@/ui/components/button';
-import { DangerCircleIcon, CheckMarkIcon, LoadingIcon, GreenSuccessCircleIcon } from '@/ui/components/icons';
+import { Button } from '@/ui/custom-components/button';
+import { DangerCircleIcon, CheckMarkIcon, LoadingIcon, GreenSuccessCircleIcon } from '@/ui/custom-components/icons';
 import useAuth from '@/lib/hooks/use-auth';
 
 type FormErrors = {
@@ -89,7 +89,6 @@ export default function SignInFormComponent() {
       }, {} as FormErrors);
       setErrors(errorObject);
     } else if (response?.serverError && response?.serverError === "user is not verified") {
-      // console.log("User is not verified");
       setFormSuccess(true);
       setAuth({ isAuth: true});
       router.push(redirectURL);
@@ -98,7 +97,6 @@ export default function SignInFormComponent() {
     } else {
       setFormSuccess(true);
       setAuth({ isAuth: true});
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
       router.push(redirectURL);
     }
 

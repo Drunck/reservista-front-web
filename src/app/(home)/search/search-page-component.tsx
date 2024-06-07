@@ -3,8 +3,8 @@
 import { getAllRestaurants } from "@/lib/api";
 import useAuth from "@/lib/hooks/use-auth";
 import { FetchState, TRestaurantsResponse, TRestaurant } from "@/lib/types";
-import Pagination from "@/ui/components/pagination";
-import { RestaurantCardSkeleton, NewRestaurantCard } from "@/ui/components/restaurants";
+import Pagination from "@/ui/custom-components/pagination";
+import { RestaurantCardSkeleton, NewRestaurantCard } from "@/ui/custom-components/restaurants";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -20,27 +20,30 @@ export default function SearchPageComponent() {
   const [isMounted, setIsMounted] = useState(false);
   const [fetchError, setFetchError] = useState<string | undefined>("");
 
-  const searchRestaurants = async (search: string) => {
-    setFetchState("loading");
 
-    const response: TRestaurantsResponse = await getAllRestaurants({ q: search, page: page });
-    if (response.status === 200 && response.restaurants) {
-      setRestaurants(response.restaurants);
-      setTotalPages(response.totalPages);
-      setFetchState("success");
-    } else {
-      setFetchState("error");
-      setFetchError(response?.message);
-    }
-  };
 
   useEffect(() => {
-    setIsMounted(true);
+    const searchRestaurants = async (search: string) => {
+      setFetchState("loading");
+
+      const response: TRestaurantsResponse = await getAllRestaurants({ q: search, page: page });
+      if (response.status === 200 && response.restaurants) {
+        setRestaurants(response.restaurants);
+        setTotalPages(response.totalPages);
+        setFetchState("success");
+      } else {
+        setFetchState("error");
+        setFetchError(response?.message);
+      }
+    };
     if (!isLoading && query !== undefined) {
       searchRestaurants(query);
     }
   }, [isLoading, query, page]);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   if (!isMounted) {
     return null;
   }
@@ -67,13 +70,13 @@ export default function SearchPageComponent() {
         {fetchState === "success" && restaurants.map((restaurant) => <NewRestaurantCard key={restaurant.id} restaurant={restaurant} auth={auth} />)}
       </div>
       <div className="my-5">
-        <Pagination 
-        currentPage={page} 
-        totalPages={totalPages} 
-        baseUrl="/search" 
-        queryParams={{
-          search_query: query
-        }}/>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          baseUrl="/search"
+          queryParams={{
+            search_query: query
+          }} />
       </div>
     </>
   )

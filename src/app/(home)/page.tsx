@@ -1,4 +1,6 @@
-import RestuarantCardtWrapper from "@/ui/components/restaurants"
+export const dynamic = "force-dynamic";
+
+import RestuarantCardtWrapper from "@/ui/custom-components/restaurants"
 
 export default async function Home() {
   return (

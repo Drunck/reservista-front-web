@@ -48,7 +48,7 @@ export default function RestuarantCardtWrapper({ className, data, currentPage = 
 
     setIsMounted(true);
     fetchAllRestaurants();
-  }, [auth.isAuth, auth.user_roles, isLoading]);
+  }, [auth.isAuth, auth.user_roles, isLoading, currentPage, router]);
 
   if (!isMounted) {
     return null;
@@ -65,15 +65,19 @@ export default function RestuarantCardtWrapper({ className, data, currentPage = 
               ))}
             </>
           ) : fetchState === "error" ? (
-            <span className="mx-auto px-4 rounded-md bg-white text-black shadow-[0px_2px_8px_0px_#63636333]">{fetchError}</span>
+            <span className="mx-auto col-span-1 md:col-span-2 lg:col-span-4 p-4 rounded-md bg-white text-black w-full text-center text-3xl font-bold">{fetchError}</span>
           ) : (
             restaurants.map((restaurant) => <NewRestaurantCard key={restaurant.id} restaurant={restaurant} auth={auth} />)
           )
         }
       </div>
-      <div className="mt-5 mb-20 lg:mt-5">
-        <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/page" />
-      </div>
+      {
+        fetchState !== "loading" && fetchState !== "error" && (
+          <div className="mt-5 mb-20 lg:mt-5">
+            <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/page" />
+          </div>
+        )
+      }
     </>
   )
 }
@@ -82,13 +86,13 @@ export function NewRestaurantCard({ restaurant, auth }: { restaurant: TRestauran
   return (
     <div className="flex flex-col rounded-xl shadow-[0px_2px_8px_0px_#63636333]">
       <div className="relative w-full h-[150px] max-w-full rounded-t-xl overflow-hidden md:h-[200px]">
-        <Link href={`restaurants/${restaurant.id}`}>
+        <Link href={`/restaurants/${restaurant.id}`}>
           {
             restaurant.image_urls ? (
               <Image src={`${restaurant.image_urls[0]}`} alt="Restaurant" className="w-full h-full object-cover" fill priority placeholder="blur"
                 blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII=" />
             ) : (
-              <Image src="/images/restaurants/tanuki.png" alt="Restaurant" className="w-full h-full object-cover" fill priority />
+              <div className="w-full h-full object-cover bg-gray-200"></div>
             )
           }
         </Link>
@@ -97,7 +101,7 @@ export function NewRestaurantCard({ restaurant, auth }: { restaurant: TRestauran
         </button>
       </div>
       <div className="px-4 py-2 md:text-sm">
-        <Link href={`restaurants/${restaurant.id}`}>
+        <Link href={`/restaurants/${restaurant.id}`}>
           <div className="flex justify-between items-center mb-2">
             <h3 className="text-md font-semibold">{restaurant.name}</h3>
             <div className="flex flex-row items-center">
@@ -126,10 +130,10 @@ export function NewRestaurantCard({ restaurant, auth }: { restaurant: TRestauran
                 </div>
               </ResponsiveDrawerDialog>
             ) : auth.isAuth ? (
-              <Link href={`restaurants/${restaurant.id}/booking`} className="w-full rounded-md p-2 flex justify-center text-sm bg-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Book</Link>
+              <Link href={`/restaurants/${restaurant.id}/booking`} className="w-full rounded-md p-2 flex justify-center text-sm bg-black text-white transition duration-300 hover:bg-[--dark-blue-1] active:shadow-[0px_0px_5px_0px_#333333]">Book</Link>
             ) : (
               <ResponsiveDrawerDialog title="Sign in" triggerButtonText="Book" closeButtonText="Cancel">
-                <div className="flex flex-col gap-y-5">
+                <div className="flex flex-col gap-y-5 text-sm md:text-base">
                   <span>
                     Please sign in to your account to book a table.
                   </span>

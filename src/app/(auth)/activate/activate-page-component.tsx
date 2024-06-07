@@ -6,14 +6,14 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Button } from "@/ui/components/button";
+import { Button } from "@/ui/custom-components/button";
 import { useEffect, useState } from "react";
 import { activateUser, getUserById, resendActivationCode } from "@/lib/api";
-import { LoadingIcon } from "@/ui/components/icons";
+import { LoadingIcon } from "@/ui/custom-components/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import useAuth from "@/lib/hooks/use-auth";
 import useMediaQuery from "@/lib/hooks/use-media-query";
-import MobileTopNavigationBar from "@/ui/components/mobile-top-navigation-bar";
+import MobileTopNavigationBar from "@/ui/custom-components/mobile-top-navigation-bar";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function ActivateAccountPage() {

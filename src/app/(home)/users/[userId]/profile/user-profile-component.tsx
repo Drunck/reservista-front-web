@@ -4,8 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getUserById } from "@/lib/api";
 import useMediaQuery from "@/lib/hooks/use-media-query";
 import { TUser } from "@/lib/types";
-import { UserIcon } from "@/ui/components/icons";
-import MobileTopNavigationBar from "@/ui/components/mobile-top-navigation-bar";
+import { UserIcon } from "@/ui/custom-components/icons";
+import MobileTopNavigationBar from "@/ui/custom-components/mobile-top-navigation-bar";
 import React, { useEffect, useState } from "react";
 
 export default function UserProfileComponent({userId} : {userId: string}) {

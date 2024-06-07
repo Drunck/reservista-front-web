@@ -37,7 +37,7 @@ export default function MobileNavBar() {
 
   return (
     <>
-      {pathname === "/" || pathname === "/search" ? (
+      {pathname === "/" || pathname === "/search" || pathname.includes("/page/") ? (
         <div className="py-2 px-4 w-full fixed z-10 bg-white shadow-md rounded-b-md lg:hidden">
           {
             pathname === "/search" && (
