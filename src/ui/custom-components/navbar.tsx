@@ -141,15 +141,6 @@ export function UserDropdownMenu({ user, userId, user_roles }: UserDropdownMenuP
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Link href="/admin/dashboard">
-            <DropdownMenuItem className="cursor-pointer">
-              <PieChartIcon className="mr-2 h-4 w-4" />
-              <span>Admin dashboard</span>
-            </DropdownMenuItem>
-          </Link>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
         {
           (user_roles ?? []).includes("admin") && (
             <>

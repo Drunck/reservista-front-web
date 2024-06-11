@@ -10,7 +10,7 @@ const nextConfig = {
         ],
     },
     // uncomment the line below to enable standalone mode for the docker image
-    output: "standalone",
+    // output: "standalone",
 };
 
 export default nextConfig;

@@ -10,6 +10,7 @@ import { CuisineIcon, HalfFullStarIcon, MapPointIcon } from "./icons";
 import { ResponsiveDrawerDialog } from "./responsive-drawer-dialog";
 import Pagination from "./pagination";
 import { useRouter } from "next/navigation";
+import { set } from "date-fns";
 
 export default function RestuarantCardtWrapper({ className, data, currentPage = 1 }: { className?: string, data?: TRestaurantsResponse, currentPage?: number }) {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function RestuarantCardtWrapper({ className, data, currentPage = 
   const [fetchState, setFetchState] = useState<FetchState>("loading");
   const [isMounted, setIsMounted] = useState(false);
   const [fetchError, setFetchError] = useState<string | undefined>("");
-  const [totalPages, setTotalPages] = useState<number | undefined>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
     const fetchAllRestaurants = async () => {
@@ -27,8 +28,13 @@ export default function RestuarantCardtWrapper({ className, data, currentPage = 
       const response: TRestaurantsResponse = await getAllRestaurants({ page: currentPage });
       if (response.status === 200 && response.restaurants) {
         setRestaurants(response.restaurants);
-        setTotalPages(response.totalPages);
+        if (response.totalPages) {
+          setTotalPages(response.totalPages);
+        }
         setFetchState("success");
+      } else if (response.status === 200 && !response.restaurants) {
+        setFetchState("success");
+        setRestaurants([]);
       } else if (response.status === 404) {
         router.push("/404");
       } else {
@@ -65,14 +71,16 @@ export default function RestuarantCardtWrapper({ className, data, currentPage = 
               ))}
             </>
           ) : fetchState === "error" ? (
-            <span className="mx-auto col-span-1 md:col-span-2 lg:col-span-4 p-4 rounded-md bg-white text-black w-full text-center text-3xl font-bold">{fetchError}</span>
-          ) : (
+            <span className="mx-auto col-span-1 md:col-span-2 lg:col-span-4 p-4 rounded-md bg-white text-black w-full text-center text-2xl font-bold">{fetchError}</span>
+          ) : fetchState === "success" && restaurants.length > 1 ? (
             restaurants.map((restaurant) => <NewRestaurantCard key={restaurant.id} restaurant={restaurant} auth={auth} />)
+          ) : (
+            <span className="mx-auto col-span-1 md:col-span-2 lg:col-span-4 p-4 rounded-md bg-white text-black w-full text-center text-xl font-medium">No restaurants found</span>
           )
         }
       </div>
       {
-        fetchState !== "loading" && fetchState !== "error" && (
+        fetchState !== "loading" && fetchState !== "error" && totalPages > 1 && (
           <div className="mt-5 mb-20 lg:mt-5">
             <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/page" />
           </div>

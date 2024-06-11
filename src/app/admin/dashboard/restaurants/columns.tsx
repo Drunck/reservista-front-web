@@ -64,7 +64,7 @@ export const restaurantColumns: ColumnDef<TRestaurant>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem className="w-full flex flex-row items-center cursor-pointer">
               <Pencil className="w-4 h-4 mr-2" />
-              <Link href={`/admin/dashboard/restaurants/edit/${restaurant.id}`} className="w-full">
+              <Link href={`/admin/dashboard/restaurants/${restaurant.id}/edit/`} className="w-full">
                 Edit
               </Link>
             </DropdownMenuItem>

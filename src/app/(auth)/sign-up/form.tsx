@@ -132,7 +132,7 @@ export default function SignUpFormComponent() {
       <div className="flex flex-col w-full">
         <label htmlFor="phone" className="text-sm font-medium mt-4">Phone number</label>
         <PhoneInput name="phone" className={`mt-1 phone-input coutry-selector country-selector-dropdown dial-code-preview' ${errors.phone ? "phone-input-error" : ""}`} inputStyle={{ "width": "100%" }} value={phoneNum} onChange={setPhoneNum} required />
-        {errors?.email && <span className="text-sm text-red-400 mt-1">{errors.phone}</span>}
+        {errors?.phone && <span className="text-sm text-red-400 mt-1">{errors.phone}</span>}
       </div>
       <div className="flex flex-col w-full">
         <label htmlFor="email" className="text-sm font-medium mt-4">Email</label>

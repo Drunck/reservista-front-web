@@ -109,8 +109,8 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
     }
 
     getRestaurant();
-    fetchReservations();
     fetchTables();
+    fetchReservations();
   }, [restaurantId, toast]);
 
   useEffect(() => {

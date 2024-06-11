@@ -38,7 +38,7 @@ export default function MobileNavBar() {
   return (
     <>
       {pathname === "/" || pathname === "/search" || pathname.includes("/page/") ? (
-        <div className="py-2 px-4 w-full fixed z-10 bg-white shadow-md rounded-b-md lg:hidden">
+        <div className="py-2 px-4 w-full fixed z-50 bg-white shadow-md rounded-b-md lg:hidden">
           {
             pathname === "/search" && (
               <div className="absolute border border-gray-200 rounded-full p-2 hover:cursor-pointer hover:bg-gray-100/50 active:bg-gray-100/50" onClick={() => router.back()} >
@@ -51,7 +51,7 @@ export default function MobileNavBar() {
           </div>
         </div>) : null 
       }
-      <nav className="flex lg:hidden items-center justify-between flex-col w-full fixed inset-x-0 bottom-0 z-10 bg-white shadow-[0px_0px_5px_0px_#d5d5d5] ">
+      <nav className="flex lg:hidden items-center justify-between flex-col w-full fixed inset-x-0 bottom-0 z-50 bg-white shadow-[0px_0px_5px_0px_#d5d5d5] ">
         <div className="w-full">
           <div className="grid grid-cols-5 px-4 border-t">
             {isLoading ?

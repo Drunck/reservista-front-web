@@ -22,7 +22,14 @@ export const activetedUserRoutes = [
     "/restaurants/[restaurantId]/booking",
 ];
 
-export const adminRoutes: string[] = ["/admin"];
+export const adminRoutes: string[] = [
+    "/admin/dashboard",
+    "/admin/dashboard/restaurants",
+    "/admin/dashboard/restaurants/[restaurantId]",
+    "/admin/dashboard/restaurants/[restaurantId]/edit",
+    "/admin/dashboard/users",
+    "/admin/dashboard/users/[id]",
+];
 
 /**
  * Auth routes are routes that are only accessible to unauthenticated users.

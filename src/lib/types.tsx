@@ -10,7 +10,7 @@ export type TSignIn = z.infer<typeof SignInSchema>;
 export const SignUpSchema = z.object({
   name: z.string().trim().min(1, "First name must be at least 1 characters").max(64, "First name must be at most 64 characters"),
   surname: z.string().trim().min(1, "Last name must be at least 1 characters").max(64, "Last name must be at most 64 characters"),
-  phone: z.string().trim().min(12, "Phone number must be at least 12 characters"),
+  phone: z.string().trim().min(12, "Phone number must be at least 12 digits"),
   email: z.string().trim().email("Invalid email address"),
   password: z.string().trim().min(8, "Password must be at least 8 characters").max(64, "Password must be at most 64 characters").regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,]).*$/, "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"),
 });
@@ -73,16 +73,16 @@ export type TAuthContext = {
 }
 
 export const TableSchema = z.object({
-  id: z.string().uuid("Invalid table id"),
+  id: z.string().uuid("Invalid table id").optional(),
   NumberOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
-  IsReserved: z.boolean(),
+  IsReserved: z.boolean().optional(),
   TableNumber: z.number().int().min(1, "Table number must be at least 1"),
   restaurant: z.object({
     id: z.string().uuid("Invalid restaurant id"),
     name: z.string().trim().min(1, "Restaurant name must be at least 1 characters").max(64, "Restaurant name must be at most 64 characters"),
     address: z.string().trim().min(1, "Restaurant address must be at least 1 characters").max(64, "Restaurant address must be at most 64 characters"),
     contact: z.string().trim().min(1, "Restaurant contact must be at least 1 characters").max(64, "Restaurant contact must be at most 64 characters"),
-  })
+  }).optional(),
 });
 
 export type Table = z.infer<typeof TableSchema>;
@@ -194,3 +194,11 @@ export const PaginationsSchema = z.object({
 })
 
 export type TPaginationProps = z.infer<typeof PaginationsSchema>;
+
+export const AddRestaurantSchema = z.object({
+  restaurant_name: z.string().trim().min(8, "Restaurant name must be at least 8 character").max(64, "Restaurant name must be at most 64 characters"),
+  restaurant_address: z.string().trim().min(8, "Restaurant address must be at least 8 character").max(64, "Restaurant address must be at most 64 characters"),
+  restaurant_contact: z.string().trim().min(8, "Contact number is invalid").max(15, "Contact number is invalid"),
+});
+
+export type AddRestaurant = z.infer<typeof AddRestaurantSchema>;

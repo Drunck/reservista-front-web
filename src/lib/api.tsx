@@ -1,4 +1,4 @@
-import { ActivationCodeSchema, CancelReservationSchema, ReservationInput, RestaurantSearchQueryParams, SignInSchema, SignUpSchema, TRestaurantsResponse, TActivationCode, TCancelReservation, TReservationsResponse, TResponse, TRestaurantReservationsResponse, TRestaurantSearchSuggestionsResponse, TSignIn, TSignUp } from "./types";
+import { ActivationCodeSchema, CancelReservationSchema, ReservationInput, RestaurantSearchQueryParams, SignInSchema, SignUpSchema, TRestaurantsResponse, TActivationCode, TCancelReservation, TReservationsResponse, TResponse, TRestaurantReservationsResponse, TRestaurantSearchSuggestionsResponse, TSignIn, TSignUp, TRestaurant } from "./types";
 import { capitalizeFirstLetter } from "./utils";
 
 export const signInUser = async (formData: TSignIn) => {
@@ -202,7 +202,7 @@ export const getAllRestaurants = async ({ q, page = 1, limit = 20 }: RestaurantS
       const data = await response.json();
       if (!data.restaurants) {
         return {
-          status: 404,
+          status: 200,
           message: "No restaurants found",
         };
       }
@@ -237,7 +237,8 @@ export const getRestaurantById = async (id: string) => {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/restaurants/view/${id}`, {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
+      cache: "no-store",
     });
 
     if (response.ok) {
@@ -340,7 +341,7 @@ export const makeTableReservation = async (formData: ReservationInput): Promise<
         status: 400,
         message: "Table is already reserved at that time"
       };
-    } 
+    }
   } catch (error: any) {
     if (!error.response) {
       console.error("Tabel Reservations: No server response", error);
@@ -470,4 +471,33 @@ export const cancelReservation = async ({ id }: TCancelReservation): Promise<TRe
   }
 
   return { status: 400, message: "Failed to cancel reservation" };
+}
+
+export const updateRestaurantBasicInfo = async (formData: TRestaurant) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/restaurants/update/${formData.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        restaurant_name: formData.name.trim(),
+        restaurant_address: formData.address.trim(),
+        restaurant_contact: formData.contact.trim(),
+      }),
+      cache: "no-store",
+    });
+    if (response.ok) {
+      return { status: 200, message: "Restaurant information updated successfully" };
+    }
+
+    throw new Error("Failed to update restaurant");
+  } catch (error: any) {
+    if (!error.response) {
+      console.error("No server response");
+      return { status: 500, message: "No server response" };
+    }
+    return { status: 400, message: "Failed to update restaurant" };
+  }
 }
