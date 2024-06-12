@@ -4,12 +4,9 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { TRestaurant } from "@/lib/types"
 import { ColumnDef } from "@tanstack/react-table"
-import { Clipboard, ExternalLinkIcon, MoreHorizontal, Pencil, Trash, Trash2 } from "lucide-react"
+import { Clipboard, ExternalLinkIcon, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/router"
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 export type Restaurant = {
   id: string
   amount: number

@@ -154,7 +154,7 @@ export default function SignUpFormComponent() {
         </div>
       </div>
       <Button className="mt-10 rounded-md p-2" disabled={isLoading} onClick={handleSubmit}>
-        {isLoading ? <LoadingIcon className="w-6 h-6" /> : "Sign up"}
+        {isLoading ? <LoadingIcon className="w-5 h-5" /> : "Sign up"}
       </Button>
     </form>
   )

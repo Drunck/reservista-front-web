@@ -72,6 +72,13 @@ export type TAuthContext = {
   setIsLoading: (isLoading: boolean) => void;
 }
 
+export const TableInputSchema = z.object({
+  NumberOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
+  TableNumber: z.number().int().min(1, "Table number must be at least 1"),
+});
+
+export type TableInput = z.infer<typeof TableInputSchema>;
+
 export const TableSchema = z.object({
   id: z.string().uuid("Invalid table id").optional(),
   NumberOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
@@ -82,7 +89,7 @@ export const TableSchema = z.object({
     name: z.string().trim().min(1, "Restaurant name must be at least 1 characters").max(64, "Restaurant name must be at most 64 characters"),
     address: z.string().trim().min(1, "Restaurant address must be at least 1 characters").max(64, "Restaurant address must be at most 64 characters"),
     contact: z.string().trim().min(1, "Restaurant contact must be at least 1 characters").max(64, "Restaurant contact must be at most 64 characters"),
-  }).optional(),
+  }),
 });
 
 export type Table = z.infer<typeof TableSchema>;
@@ -157,7 +164,7 @@ export type TRestaurantSearchSuggestionsResponse = TResponse & {
 
 export type FetchState = "loading" | "error" | "success";
 
-export const times = ["12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM"];
+export const times = ["8:00 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM"];
 
 export type ReponsiveDrawerDialogProps = {
   open?: boolean;

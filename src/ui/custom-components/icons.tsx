@@ -80,7 +80,7 @@ export const HomeIcon: React.FC<{ className?: string }> = ({ className = "" }) =
 export const BookingsIcon: React.FC<{ className?: string }> = ({ className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800" className={className}  >
     <path className="fill-none stroke-current" strokeWidth="25" strokeMiterlimit="10" d="M700,533.3v-200c0-94.3,0-141.4-29.3-170.7c-25.6-25.6-64.9-28.8-137.4-29.2H266.7 c-72.5,0.4-111.8,3.6-137.4,29.2C100,191.9,100,239,100,333.3v200c0,94.3,0,141.4,29.3,170.7c29.3,29.3,76.4,29.3,170.7,29.3h200 c94.3,0,141.4,0,170.7-29.3C700,674.7,700,627.6,700,533.3z" />
-    <path d="M266.7,116.7c0-27.6,22.4-50,50-50h166.7c27.6,0,50,22.4,50,50V150c0,27.6-22.4,50-50,50H316.7c-27.6,0-50-22.4-50-50V116.7 z" />
+    <path className="fill-current" d="M266.7,116.7c0-27.6,22.4-50,50-50h166.7c27.6,0,50,22.4,50,50V150c0,27.6-22.4,50-50,50H316.7c-27.6,0-50-22.4-50-50V116.7 z" />
     <path className="fill-current" fillRule="evenodd" clipRule="evenodd" d="M208.3,350c0-13.8,11.2-25,25-25h333.3c13.8,0,25,11.2,25,25c0,13.8-11.2,25-25,25H233.3 C219.5,375,208.3,363.8,208.3,350z M241.7,466.7c0-13.8,11.2-25,25-25h266.7c13.8,0,25,11.2,25,25c0,13.8-11.2,25-25,25H266.7 C252.9,491.7,241.7,480.5,241.7,466.7z M275,583.3c0-13.8,11.2-25,25-25h200c13.8,0,25,11.2,25,25s-11.2,25-25,25H300 C286.2,608.3,275,597.1,275,583.3z" />
   </svg>
 );
@@ -90,9 +90,9 @@ export const HalfFullHeartIcon: React.FC<{ className?: string; strokeFill?: stri
   strokeFill = "fill-current",
   strokeColor = "stroke-current"
 }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800" className={` ${className}`} fill="none" strokeMiterlimit="10"  >
-    <path className={strokeColor} strokeWidth="25" fillRule="evenodd" clipRule="evenodd" d="M270.2,608.2C176.6,536.1,66.7,451.4,66.7,304.6C66.7,142.5,250,27.5,400,183.4v500c-33.3,0-66.7-25.7-101.3-53 C289.5,623.1,279.9,615.7,270.2,608.2z" />
-    <path className={`${strokeFill} ${strokeColor}`} strokeWidth="25" d="M501.3,630.4c98.1-77.3,232.1-163.7,232.1-325.8C733.3,142.5,550,27.5,400,183.4v500 C433.3,683.3,466.7,657.6,501.3,630.4z" />
+  <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800" className={` ${className}`} strokeMiterlimit="10"  >
+    <path className={`${strokeColor} fill-none`} strokeWidth="25" fillRule="evenodd" clipRule="evenodd" d="M270.2,608.2C176.6,536.1,66.7,451.4,66.7,304.6C66.7,142.5,250,27.5,400,183.4v500c-33.3,0-66.7-25.7-101.3-53 C289.5,623.1,279.9,615.7,270.2,608.2z" />
+    <path className={`${strokeFill} ${strokeColor} fill-inherit`} strokeWidth="25" d="M501.3,630.4c98.1-77.3,232.1-163.7,232.1-325.8C733.3,142.5,550,27.5,400,183.4v500 C433.3,683.3,466.7,657.6,501.3,630.4z" />
   </svg>
 );
 

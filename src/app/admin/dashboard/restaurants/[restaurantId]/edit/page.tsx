@@ -15,7 +15,7 @@ export default async function EditPage({ params }: { params: { restaurantId: str
   const restaurantWithId = { ...restaurant, id: restaurantId }
 
   return (
-    <div className="p-4">
+    <div className="p-4 pb-20 lg:pb-10">
       <div className="mx-auto">
         <EditRestaurantForm restaurant={restaurantWithId} restaurant_tables={tables.tables} />
       </div>

@@ -14,6 +14,7 @@ import MobileTopNavigationBar from "@/ui/custom-components/mobile-top-navigation
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import Modal from "./modal";
+import { isAfter, parse, set } from "date-fns";
 
 export default function TableBooking({ params }: { params: { restaurantId: string } }) {
   const pathname = usePathname();
@@ -36,10 +37,12 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
   const [reservations, setReservations] = useState<TRestaurantReservation[]>([]);
   const [tables, setTables] = useState<TRestaurantTables[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(times[0]);
+  const [filteredTimes, setFilteredTimes] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState<TRestaurantTables | null>(null);
 
   const [fetchReservationsStatus, setFetchReservationsStatus] = useState<FetchState>("loading");
   const [fetchTablesStatus, setFetchTablesStatus] = useState<FetchState>("loading");
+
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -86,7 +89,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
             id: res.id,
             table_number: res.TableNumber,
             number_of_seats: res.NumberOfSeats,
-            status: "available", // Initialize status as available
+            status: "available",
           }))
         );
         setFetchTablesStatus("success");
@@ -111,6 +114,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
     getRestaurant();
     fetchTables();
     fetchReservations();
+    setIsMounted(true);
   }, [restaurantId, toast]);
 
   useEffect(() => {
@@ -158,7 +162,6 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
     }
 
     if (selectedTime && selectedTable !== null && selectedTable?.id) {
-      // const selectedTableId = tables.find(table => table.table_number === selectedTable)?.id;
       const formData = {
         table_id: selectedTable.id,
         reservation_time: selectedTime,
@@ -199,7 +202,12 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
   };
 
   useEffect(() => {
-    setIsMounted(true);
+    const now = new Date();
+    const filtered = times.filter(time => {
+      const parsedTime = parse(time, "h:mm a", new Date());
+      return isAfter(parsedTime, now);
+    });
+    setFilteredTimes(filtered);
   }, []);
 
   if (isLoading) {
@@ -248,12 +256,17 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
             </div>
           </div>
         </Link>
-        {!isLoading && (
+        {
+          filteredTimes.length === 0 && (
+            <p className="text-base text-center text-gray-500">No available times for today. Please try again tomorrow.</p>
+          )
+        }
+        {!isLoading && isMounted && filteredTimes.length !== 0 && (
           <>
             <div className="mb-6">
               <h2 className="text-xl mb-4 font-semibold">Time</h2>
               <div className="flex flex-row flex-wrap gap-4">
-                {times.map(time => (
+                {filteredTimes.map(time => (
                   <TimeButton
                     key={time}
                     time={time}
@@ -281,16 +294,6 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
               </div>
               {
                 reservations.length === 0 || (fetchReservationsStatus === "success" && fetchTablesStatus === "success") ? (
-                  // <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                  //   {tables.map(table => (
-                  //     <TableButton
-                  //       key={table.id}
-                  //       tableNumber={table.table_number}
-                  //       status={table.status === "reserved" ? "reserved" : table.table_number === selectedTable ? "selected" : "available"}
-                  //       onClick={() => table.status === "available" && setSelectedTable(table.table_number)}
-                  //     />
-                  //   ))}
-                  // </div>
                   <TableLayout tables={tables} onTableClick={handleTableClick} selectedTableId={selectedTable?.id} />
                 ) : (
                   <p className="text-base text-center">Try again later!</p>

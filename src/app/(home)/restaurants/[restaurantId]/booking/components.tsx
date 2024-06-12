@@ -123,22 +123,5 @@ export function Table({ table, onClick, isSelected }: TableProps) {
         />
       ))}
     </div>
-
-
-    // <div
-    //   className={`relative flex items-center justify-center w-24 h-24 border rounded-lg cursor-pointer ${
-    //     table.status === "reserved" ? "bg-red-200 border-red-500" : "bg-white border-gray-500 hover:bg-zinc-200/50"
-    //   }`}
-    //   onClick={() => onClick(table.id)}
-    // >
-    //   <span>{table.number_of_seats} Seats</span>
-    //   {chairPositions.slice(0, chairCount).map((pos, index) => (
-    //     <div
-    //       key={index}
-    //       className="absolute w-4 h-4 bg-white border border-gray-500 rounded-full"
-    //       style={{ ...pos }}
-    //     />
-    //   ))}
-    // </div>
   );
 }

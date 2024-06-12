@@ -14,6 +14,7 @@ import { getRestaurantById } from "@/lib/api";
 import { TRestaurant, times } from "@/lib/types";
 import useAuth from "@/lib/hooks/use-auth";
 import MobileTopNavigationBar from "@/ui/custom-components/mobile-top-navigation-bar";
+import { isAfter, parse } from "date-fns";
 
 export default function RestaurantPage({ params }: { params: { restaurantId: string } }) {
   const pathname = usePathname();
@@ -30,6 +31,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
   });
   const [isMounted, setIsMounted] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>(times[0]);
+  const [filteredTimes, setFilteredTimes] = useState<string[]>([]);
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTime(event.target.value);
@@ -62,6 +64,13 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
 
   useEffect(() => {
     setIsMounted(true);
+    const now = new Date();
+    const filtered = times.filter(time => {
+      const parsedTime = parse(time, "h:mm a", new Date());
+      return isAfter(parsedTime, now);
+    });
+    setSelectedTime(filtered[0]);
+    setFilteredTimes(filtered);
   }, []);
 
   if (!isMounted) {
@@ -82,7 +91,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
             <div className="min-w-md min-h-md min-h-96 bg-gray-200"></div>
           )
         }
-        </div>
+      </div>
       <div className="grid grid-cols-1 w-full lg:grid-cols-3 lg:gap-4 lg:w-[95%] mx-auto">
         <div className="relative w-full col-span-1 rounded-t-xl bg-white lg:w-full mt-[-80px] mx-auto lg:col-span-2 lg:shadow-[0px_0px_10px_0px_#0000001A]">
           <div className="py-6 px-6">
@@ -150,7 +159,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
         {isDesktop &&
           <div className="sticky lg:grid-cols-1 mt-[-80px]">
             <div className="flex flex-col gap-y-4">
-              <div className="bg-white rounded-xl shadow-[0px_0px_10px_0px_#0000001A] p-6 text-sm">
+              <div className="bg-white rounded-xl shadow-[0px_0px_10px_0px_#0000001A] p-6 text-base">
                 <div className="flex justify-center border-b pb-4">
                   <p className="text-base font-bold">Book a Table</p>
                 </div>
@@ -158,17 +167,29 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
                   <p>Date:</p>
                   <span className="font-bold">Today</span>
                 </div>
-                <div className="flex flex-row gap-x-2 justify-between items-center py-4 text-base">
-                  <p>Time:</p>
-                  <select className="font-bold border py-1 px-2 rounded-lg" value={selectedTime} onChange={handleTimeChange}
-                  >
-                    {times.map((time, index) => (
-                      <option key={index} value={time}>{time}</option>
-                    ))}
-                  </select>
-                </div>
                 {
-                  !isLoading && (
+                  filteredTimes.length === 0 && (
+                    <div className="flex flex-row justify-center py-4 text-base text-center text-gray-500">
+                      No time available for booking
+                    </div>
+                  )
+                }
+
+                {
+                  filteredTimes.length !== 0 && (
+                    <div className="flex flex-row gap-x-2 justify-between items-center py-4 text-base">
+                      <p>Time:</p>
+                      <select className="font-bold border py-1 px-2 rounded-lg" value={selectedTime} onChange={handleTimeChange}
+                      >
+                        {filteredTimes.map((time, index) => (
+                          <option key={index} value={time}>{time}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+                {
+                  !isLoading && filteredTimes.length !== 0 && (
                     <div className="flex justify-center py-4">
                       {
                         auth.isAuth ?
@@ -177,13 +198,12 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
                           ) : (
                             <Link href={`${process.env.NEXT_PUBLIC_DEV_URL}/activate`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Activate account</Link>
                           )) : (
-                            <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Login to Book</Link>
+                            <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Sign-in to Book</Link>
                           )
                       }
                       {/* <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-full bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link> */}
                     </div>)
                 }
-
               </div>
             </div>
           </div>

@@ -16,12 +16,21 @@ export const privateRoutes: string[] = [
     "/users/[id]/wishlist",
     "/users/[id]/bookings",
     "/users/[id]/profile",
+    "/restaurants/[restaurantId]/booking",
 ];
 
+/**
+ * Activated user routes are routes that are only accessible to activated users.
+ * @type {string[]}
+ */
 export const activetedUserRoutes = [
     "/restaurants/[restaurantId]/booking",
 ];
 
+/**
+ * Admin routes are routes that are only accessible to admin users.
+ * @type {string[]}
+ */
 export const adminRoutes: string[] = [
     "/admin/dashboard",
     "/admin/dashboard/restaurants",

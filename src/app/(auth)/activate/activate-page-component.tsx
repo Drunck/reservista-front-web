@@ -141,7 +141,7 @@ export default function ActivateAccountPage() {
             </div>
             {errorMessage && <span className="text-red-500 text-sm">{errorMessage}</span>}
             <Button type="submit" className={`px-4 py-2 rounded-md w-full max-w-40 ${isSubmitting ? 'bg-gray-300 cursor-not-allowed' : ''}`} disabled={isSubmitting} >
-              {isSubmitting ? <LoadingIcon className="w-6 h-6" /> : "Verify"}
+              {isSubmitting ? <LoadingIcon className="w-5 h-5" /> : "Verify"}
             </Button>
           </form>
         </div>

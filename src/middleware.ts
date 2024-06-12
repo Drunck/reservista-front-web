@@ -17,7 +17,6 @@ export async function middleware(request: NextRequest) {
         let isAdmin: boolean = false;
 
         const internalApiUrl = `${process.env.NEXT_PUBLIC_DEV_URL}`;
-
         const apiResponse = await fetch(`${internalApiUrl}/api/auth/validate`, {
             method: "POST",
             credentials: "include",
@@ -34,17 +33,15 @@ export async function middleware(request: NextRequest) {
             isAdmin = data.user.roles.includes("admin");
         }
 
-        console.log("INITIAL URL", nextUrl.pathname);
-
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/auth/healthcheck`;
-        const response = await fetch(apiUrl, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "Cookie": cookies,
-            },
-        });
+        // const apiUrl = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/auth/healthcheck`;
+        // const response = await fetch(apiUrl, {
+        //     method: "GET",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "Cookie": cookies,
+        //     },
+        // });
 
         const isAuthRoute = authRoutes.includes(nextUrl.pathname);
         const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
@@ -56,8 +53,8 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL("/sign-in", request.url));
         }
 
-        const isAuth = response.ok;
-        isAdmin = response.ok && data.user.roles?.includes("admin");
+        const isAuth = data.status === "ok";
+        isAdmin = data.status === "ok" && data.user.roles?.includes("admin");
 
         let redirectUrl = new URL("/sign-in", request.url);
         redirectUrl.searchParams.set("redirect", nextUrl.href);
@@ -78,8 +75,8 @@ export async function middleware(request: NextRequest) {
 
         return NextResponse.next();
     } catch (error) {
-        console.error(error);
-        return NextResponse.error();
+        console.error("MIDDLEWARE ERROR", error);
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
 

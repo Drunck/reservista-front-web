@@ -3,14 +3,17 @@
 import { useToast } from "@/components/ui/use-toast";
 import { updateRestaurantBasicInfo } from "@/lib/api";
 import useAuth from "@/lib/hooks/use-auth";
-import { TRestaurant, Table } from "@/lib/types";
+import { TRestaurant, TableInput } from "@/lib/types";
 import { Button } from "@/ui/custom-components/button";
 import { LoadingIcon } from "@/ui/custom-components/icons";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, SaveIcon, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 import { z } from "zod";
+import ImageUploader from "./image-uploader";
+import Image from "next/image";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const UpdateTableSchema = z.object({
   NumberOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
@@ -22,7 +25,7 @@ const UpdateRestaurantInfoSchema = z.object({
   id: z.string().uuid("Invalid restaurant id").optional(),
   name: z.string().trim().min(8, "Restaurant name must be at least 8 characters").max(64, "Restaurant name must be at most 64 characters"),
   address: z.string().trim().min(8, "Restaurant address must be at least 8 characters").max(64, "Restaurant address must be at most 64 characters"),
-  contact: z.string().trim().min(8, "Restaurant contact must be at least 8 digits").max(64, "Restaurant contact must be at most 64 characters"),
+  contact: z.string().trim().min(12, "Restaurant contact must be at least 11 digits").max(64, "Restaurant contact must be at most 64 characters"),
 });
 
 type UpdateTable = z.infer<typeof UpdateTableSchema>;
@@ -35,8 +38,8 @@ type EditRestaurantFormProps = {
 export default function EditRestaurantForm({ restaurant, restaurant_tables }: EditRestaurantFormProps) {
   const { auth } = useAuth();
 
-  const [tables, setTables] = useState<UpdateTable[] | undefined>(restaurant_tables);
-  const [initialTables, setInitialTables] = useState<UpdateTable[] | undefined>(restaurant_tables);
+  const [tables, setTables] = useState<UpdateTable[]>(restaurant_tables || []);
+  const [initialTables, setInitialTables] = useState<UpdateTable[]>(restaurant_tables || []);
 
   const [name, setName] = useState(restaurant.name);
   const [initialName, setInitialName] = useState(restaurant.name);
@@ -48,7 +51,7 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
   const [initialContact, setInitialContact] = useState(restaurant.contact);
 
   const [photos, setPhotos] = useState<FileList | null>(null);
-  const [initialPhotos, setInitialPhotos] = useState<FileList | null>(null);
+  const [initialPhotos, setInitialPhotos] = useState(restaurant.image_urls);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,23 +61,11 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
 
   useEffect(() => {
     setInitialTables(restaurant_tables);
-    setInitialPhotos(photos);
+    setInitialPhotos(restaurant.image_urls);
     setInitialName(restaurant.name);
     setInitialAddress(restaurant.address);
     setInitialContact(restaurant.contact);
-    console.log("RESTAURANT", restaurant);
-    console.log("RESTAURANT TABLES", restaurant_tables);
-  }, [restaurant, restaurant_tables]);
-
-
-  // const [tables, setTables] = useState<Table[]>([]);
-  // const [photos, setPhotos] = useState<FileList | null>(null);
-  // const [isLoading, setIsLoading] = useState(false);
-
-  // const handleAddTable = () => {
-  //   setTables((prevTables) => (prevTables ? [...prevTables, { id: "", NumberOfSeats: 1, TableNumber: prevTables.length + 1, restaurant: { id: "", name: "", address: "", contact: "" } }] : [{ id: "", NumberOfSeats: 1, TableNumber: 1, restaurant: { id: "", name: "", address: "", contact: "" } }]));
-  // };
-
+  }, [restaurant, restaurant_tables, photos]);
 
   const handleAddTable = () => {
     setTables((prevTables) => (
@@ -83,10 +74,10 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
         : [{ NumberOfSeats: 1, TableNumber: 1, restaurant_id: restaurant.id }]));
   };
 
-  const handleTableChange = (index: number, key: keyof Table, value: string | number) => {
+  const handleTableChange = (index: number, key: keyof TableInput, value: string) => {
     if (tables) {
       const newTables = [...tables];
-      (newTables[index] as any)[key] = value;
+      (newTables[index] as any)[key] = value === "" ? "" : parseInt(value);
       setTables(newTables);
     }
   };
@@ -103,8 +94,8 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
     setFormErrors({});
 
     const validationResult = UpdateRestaurantInfoSchema.safeParse({ id: restaurant.id, name, address, contact });
+
     if (!validationResult.success) {
-      console.log("VALIDATION ERRORS", validationResult.error.issues);
       let validationErrors = validationResult.error.issues.reduce((acc, issue) => {
         return {
           ...acc,
@@ -143,76 +134,96 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
       changedData.tables = tables;
     }
 
+    if (photos?.length ?? 0 > 0) changedData.photos = photos;
+
     const noChanges = Object.entries(changedData).length === 0;
 
     if (noChanges) {
       return;
     }
 
-    const restData: TRestaurant = {
-      id: restaurant.id,
-      name: name,
-      address: address,
-      contact: contact
-    }
-
-    if (photos && photos !== initialPhotos) changedData.photos = photos;
-
     setIsLoading(true);
 
-    const restResponse = await updateRestaurantBasicInfo(restData);
+    if (changedData.name !== initialName && changedData.address !== initialAddress && changedData.contact !== initialContact) {
+      const restData: TRestaurant = {
+        id: restaurant.id,
+        name: name,
+        address: address,
+        contact: contact
+      }
 
-    if (restResponse.status !== 200) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh!",
-        description: "An error occurred while updating the restaurant info.",
-      })
-      return
+      const restResponse = await updateRestaurantBasicInfo(restData);
+
+      if (restResponse.status !== 200) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh!",
+          description: "An error occurred while updating the restaurant info.",
+        })
+        setIsLoading(false);
+        return
+      }
     }
 
-    // if (changedData.tables) {
-    //   for (let table of changedData.tables) {
-    //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/tables/add`, {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({
-    //         number_of_seats: table.NumberOfSeats,
-    //         is_reserved: false,
-    //         table_number: table.TableNumber,
-    //         restaurant_id: table.restaurant_id,
-    //       }),
-    //     });
+    if (changedData.tables) {
+      for (let table of changedData.tables) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/tables/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            number_of_seats: table.NumberOfSeats,
+            table_number: table.TableNumber,
+            restaurant_id: table.restaurant_id,
+          }),
+        });
 
-    //     if (!response.ok) {
-    //       toast({
-    //         variant: "destructive",
-    //         title: "Uh oh!",
-    //         description: "An error occurred while updating the tables.",
-    //       })
-    //       return
-    //     }
-    //   }
-    // }
+        if (!response.ok) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh!",
+            description: "An error occurred while updating the tables.",
+          })
+          setIsLoading(false);
+          return
+        }
+      }
+    }
 
-    // if (photos) {
-    //   const formData = new FormData();
-    //   Array.from(photos).forEach((file) => {
-    //     formData.append('photos', file);
-    //   });
+    if (changedData.photos) {
+      for (const file of Array.from(changedData.photos)) {
+        const formData = new FormData();
+        formData.append("photos", file);
 
-    //   await fetch(`/api/photos/upload/${restaurant.id}`, {
-    //     method: 'POST',
-    //     body: formData,
-    //   });
-    // }
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/restaurants/photos/upload/${restaurant.id}`, {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh!",
+            description: "An error occurred while updating the photos.",
+          })
+          setIsLoading(false);
+          return
+        }
+      }
+    }
 
     toast({
       title: "Success!",
       description: "Restaurant info updated successfully.",
     });
+
+    setName(changedData.name || name);
+    setAddress(changedData.address || address);
+    setContact(changedData.contact || contact);
+    setInitialTables(changedData.tables?.length ? [...initialTables, ...changedData.tables] : tables);
 
     setIsLoading(false);
   };
@@ -249,8 +260,8 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
       <div className="flex flex-col gap-y-1">
         <label htmlFor="contact">Contact</label>
         <PhoneInput
-          name="restaurant_contact"
-          className={`mt-1 phone-input coutry-selector country-selector-dropdown dial-code-preview ${formErrors.contact ? "border-red-500" : ""}`}
+          name="contact"
+          className={`mt-1 phone-input coutry-selector country-selector-dropdown dial-code-preview ${formErrors.contact ? "phone-input-error" : ""}`}
           inputStyle={{ "width": "100%" }}
           value={contact}
           onChange={setContact}
@@ -277,7 +288,7 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
               type="number"
               placeholder="Number of Seats"
               value={table.NumberOfSeats}
-              onChange={(e) => handleTableChange(index, "NumberOfSeats", parseInt(e.target.value))}
+              onChange={(e) => handleTableChange(index, "NumberOfSeats", e.target.value)}
               className="col-span-5 w-full p-2 border border-gray-300 rounded-md focus-visible:outline outline-1"
               required
             />
@@ -285,7 +296,7 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
               type="number"
               placeholder="Table Number"
               value={table.TableNumber}
-              onChange={(e) => handleTableChange(index, "TableNumber", parseInt(e.target.value))}
+              onChange={(e) => handleTableChange(index, "TableNumber", e.target.value)}
               className="col-span-5 w-full p-2 border border-gray-300 rounded-md focus-visible:outline outline-1"
               required
             />
@@ -305,22 +316,57 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
             variant="outlined"
             type="button"
             onClick={handleAddTable}
-            className="lg:w-full"
+            className="w-full"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add table
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-y-3 border-t pt-6 mt-5">
+      <div className="relative flex flex-col gap-y-3 border-t pt-6 mt-5">
         <div className="flex">
-          <span className="text-xl font-bold">Photos</span>
+          <span className="text-xl font-bold">Gallery</span>
         </div>
-        <input type="file" multiple onChange={(e) => setPhotos(e.target.files)} />
+        {
+          !initialPhotos ? (
+            <div className="text-sm text-gray-500 text-center">
+              No photos uploaded
+            </div>
+          ) : (
+            <Carousel
+              opts={{
+                align: "center",
+              }}
+              className="w-full max-w-5xl mx-auto"
+            >
+              <CarouselContent>
+                {
+                  initialPhotos.map((photo, index) => (
+                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/5">
+                      <div key={index} className="relative w-full h-52 overflow-hidden mx-auto">
+                        <Image src={photo.toString()} alt="Preview" className="object-cover rounded-md" fill />
+                      </div>
+                    </CarouselItem>
+                  ))
+                }
+              </CarouselContent>
+              {
+                initialPhotos?.length !== 0 && (
+                  <>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </>
+                )
+              }
+            </Carousel>
+          )
+        }
+
+        <ImageUploader photos={photos} setPhotos={setPhotos} />
       </div>
       <div className="mt-6 w-full flex md:flex-row-reverse">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin" /> : "Submit"}
+        <Button type="submit" disabled={isLoading} className="gap-x-2">
+          {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin" /> : (<><SaveIcon className="w-5 h-5" />Save</>)}
         </Button>
       </div>
     </form >

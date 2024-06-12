@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { kumbh_sans } from "../fonts";
 import useAuth from "@/lib/hooks/use-auth";
-import { BookingsIcon, LoginIcon } from "./icons";
+import { BookingsIcon, HalfFullHeartIcon, LoginIcon } from "./icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, PieChartIcon, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +14,7 @@ import SearchInput from "./search-input";
 
 export default function NavBar() {
   const pathname = usePathname();
-  const { auth, isLoading, setAuth } = useAuth();
+  const { auth, isLoading } = useAuth();
   const [user, setUser] = useState<TUser | undefined>(undefined);
 
 
@@ -46,7 +46,7 @@ export default function NavBar() {
     <div className="fixed w-screen shadow-md top-0 z-10 bg-white">
       <nav className={
         `relative w-full m-auto flex flex-row items-center justify-between px-4
-      ${pathname.includes("/admin") ? "" : "bg-white max-w-7xl"}`
+      ${pathname.includes("/admin") ? "pr-8" : "bg-white max-w-7xl"}`
       }>
         <div className="flex flex-row items-center">
           <div className="flex flex-row items-center py-2">
@@ -166,13 +166,19 @@ export function UserDropdownMenu({ user, userId, user_roles }: UserDropdownMenuP
           <Link href={`/users/${userId}/bookings`}>
             <DropdownMenuItem className="cursor-pointer">
               <BookingsIcon className="mr-2 h-4 w-4" />
-              <span>My bookings</span>
+              <span>Bookings</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link href={`/users/${userId}/favourites`}>
+            <DropdownMenuItem className="cursor-pointer">
+              <HalfFullHeartIcon className="mr-2 h-4 w-4" />
+              <span>Favourites</span>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
-          <button className="flex flex-row items-center w-full" onClick={handleLogout} disabled={loggingOut}>
+          <button className="flex flex-row items-center w-full hover:text-red-500" onClick={handleLogout} disabled={loggingOut}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </button>

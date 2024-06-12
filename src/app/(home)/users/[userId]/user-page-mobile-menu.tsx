@@ -61,7 +61,7 @@ export default function UserPageMobileMenu({ userId }: { userId: string }) {
 
       if (response.ok) {
         setAuth({ isAuth: false });
-        router.push("/");
+        router.push("/sign-in");
       }
     } catch (error: any) {
       if (!error.response) {

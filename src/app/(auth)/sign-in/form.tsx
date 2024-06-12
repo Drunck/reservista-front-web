@@ -141,13 +141,13 @@ export default function SignInFormComponent() {
           </span>
           <label htmlFor="show-password" className="text-sm font-medium">Show password</label>
         </div>
-        <div className="items-center">
+        {/* <div className="items-center">
           <Link href="#" className="text-sm font-medium text-blue-500 hover:text-blue-700">Forgot password?</Link>
-        </div>
+        </div> */}
       </div>
 
       <Button className="mt-10 rounded-md p-2" disabled={isLoading} onClick={handleSubmit}>
-        {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin" /> : "Sign in"}
+        {isLoading ? <LoadingIcon className="w-5 h-5 animate-spin" /> : "Sign in"}
       </Button>
     </form>
   )

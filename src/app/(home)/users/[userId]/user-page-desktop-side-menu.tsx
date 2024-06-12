@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAuth from "@/lib/hooks/use-auth";
 import useMediaQuery from "@/lib/hooks/use-media-query";
 import { TUser } from "@/lib/types";
-import { BookingsIcon } from "@/ui/custom-components/icons";
+import { BookingsIcon, HalfFullHeartIcon } from "@/ui/custom-components/icons";
 import clsx from "clsx";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
@@ -84,6 +84,20 @@ export default function UserPageSideMenu({ userId }: { userId: string }) {
             </div>
             <div>
               <h3 className="text-sm">My bookings</h3>
+            </div>
+          </div>
+        </Link>
+        <Link href={`/users/${userId}/favourites`} className={
+          clsx(
+            "relative flex flex-row justify-between items-center px-4 py-2.5 hover:bg-muted",
+            { "bg-muted before:content-[''] before:bg-black before:w-1 before:min-h-full before:rounded-r-lg before:absolute before:left-0 before:top-0": pathname.includes("/favourites"), },
+          )}>
+          <div className="flex flex-row gap-x-2 items-center">
+            <div>
+              <HalfFullHeartIcon className="w-5 h-5 " />
+            </div>
+            <div>
+              <h3 className="text-sm">My favourites</h3>
             </div>
           </div>
         </Link>

@@ -311,11 +311,7 @@ export const getTablesByRestaurantId = async (id: string) => {
       return data;
     }
   } catch (error: any) {
-    // if (!error.response) {
-    //   console.error("Restaurant Tables: No server response", error);
-    //   return [];
-    // }
-    console.error("Error fetching tables: ", error);
+    // console.error("Error fetching tables: ", error);
     return [];
   }
 }

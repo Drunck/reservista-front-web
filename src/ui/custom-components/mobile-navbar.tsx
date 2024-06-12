@@ -7,6 +7,8 @@ import useAuth from "@/lib/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { TUser } from "@/lib/types";
 import SearchInput from "./search-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
 
 export default function MobileNavBar() {
   const pathname = usePathname();
@@ -49,7 +51,7 @@ export default function MobileNavBar() {
           <div className="relative w-full">
             <SearchInput />
           </div>
-        </div>) : null 
+        </div>) : null
       }
       <nav className="flex lg:hidden items-center justify-between flex-col w-full fixed inset-x-0 bottom-0 z-50 bg-white shadow-[0px_0px_5px_0px_#d5d5d5] ">
         <div className="w-full">
@@ -60,18 +62,18 @@ export default function MobileNavBar() {
               </div>
               :
               <>
-                <Link href={auth.isAuth ? `/users/${auth.user_id}/wishlist` : "/sign-in"} className="active:bg-gray-200/30 flex justify-center">
+                <Link href={auth.isAuth ? `/users/${auth.user_id}/favourites` : "/sign-in"} className="active:bg-gray-200/30 flex justify-center">
                   <div className="relative pt-3 pb-1 flex flex-col items-center">
-                    {pathname.includes("/wishlist") && <span className="w-4 h-2 absolute bg-black rounded-b-lg top-0"></span>}
+                    {pathname.includes("/favourites") && <span className="w-4 h-2 absolute bg-black rounded-b-lg top-0"></span>}
                     <HalfFullHeartIcon className="w-5 h-5" />
-                    <span className="text-[11px] mt-1">Wishlist</span>
+                    <span className="text-[11px] mt-1">Favourites</span>
                   </div>
                 </Link>
                 <Link href={auth.isAuth ? `/users/${auth.user_id}/bookings` : "/sign-in"} className="active:bg-gray-200/30 flex justify-center">
                   <div className="relative pt-3 pb-1 flex flex-col items-center">
                     {pathname.includes("/bookings") && <span className="w-4 h-2 absolute bg-black rounded-b-lg top-0"></span>}
                     <BookingsIcon className="w-5 h-5" />
-                    <span className="text-[11px] mt-1">My bookings</span>
+                    <span className="text-[11px] mt-1">Bookings</span>
                   </div>
                 </Link>
                 <Link href="/" className="active:bg-gray-200/30 flex justify-center">
@@ -91,7 +93,18 @@ export default function MobileNavBar() {
                 <Link href={auth.isAuth ? `/users/${auth.user_id}` : "/sign-in"} className="active:bg-gray-200/30 flex justify-center">
                   <div className="relative pt-3 pb-1 flex flex-col items-center">
                     {pathname === `/users/${auth.user_id}` && <span className="w-4 h-2 absolute bg-black rounded-b-lg top-0"></span>}
-                    <UserIcon className="w-5 h-5" />
+                    {
+                      auth.isAuth ? (
+                        <Avatar className="w-5 h-5">
+                          <AvatarImage src="/images/user.jpg" alt="User" className="object-cover" />
+                          <AvatarFallback>
+                            <User className="w-1/2 h-1/2" />
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <UserIcon className="w-5 h-5" />
+                      )
+                    }
                     <span className="text-[11px] mt-1">My profile</span>
                   </div>
                 </Link>
