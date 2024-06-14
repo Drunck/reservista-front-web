@@ -14,6 +14,7 @@ import { z } from "zod";
 import ImageUploader from "./image-uploader";
 import Image from "next/image";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { useRouter } from "next/navigation";
 
 const UpdateTableSchema = z.object({
   NumberOfSeats: z.number().int().min(1, "Number of seats must be at least 1"),
@@ -59,6 +60,8 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
 
   const { toast } = useToast();
 
+  const router = useRouter();
+
   useEffect(() => {
     setInitialTables(restaurant_tables);
     setInitialPhotos(restaurant.image_urls);
@@ -102,6 +105,7 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
           [issue.path[0]]: issue.message
         };
       }, {} as Record<string, string>);
+      console.log("VAlIDATION ERRORS",validationErrors);
       setFormErrors(validationErrors);
       return;
     }
@@ -144,6 +148,7 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
 
     setIsLoading(true);
 
+    console.log("WE ARE HERE");
     if (changedData.name !== initialName && changedData.address !== initialAddress && changedData.contact !== initialContact) {
       const restData: TRestaurant = {
         id: restaurant.id,
@@ -220,12 +225,14 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
       description: "Restaurant info updated successfully.",
     });
 
+    
     setName(changedData.name || name);
     setAddress(changedData.address || address);
     setContact(changedData.contact || contact);
     setInitialTables(changedData.tables?.length ? [...initialTables, ...changedData.tables] : tables);
 
     setIsLoading(false);
+    router.refresh();
   };
 
   return (
@@ -238,8 +245,9 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
         <input
           id="name"
           type="text"
+          name="name"
           value={name}
-          onChange={(e) => setName(e.target.value.trim())}
+          onChange={(e) => setName(e.target.value)}
           className={`p-2 border border-gray-300 rounded-md focus-visible:outline outline-1 ${formErrors.name ? "border-red-500" : ""}`}
           required
         />
@@ -250,8 +258,9 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
         <input
           id="address"
           type="text"
+          name="address"
           value={address}
-          onChange={(e) => setAddress(e.target.value.trim())}
+          onChange={(e) => setAddress(e.target.value)}
           className={`p-2 border border-gray-300 rounded-md focus-visible:outline outline-1 ${formErrors.address ? "border-red-500" : ""}`}
           required
         />
@@ -366,7 +375,16 @@ export default function EditRestaurantForm({ restaurant, restaurant_tables }: Ed
       </div>
       <div className="mt-6 w-full flex md:flex-row-reverse">
         <Button type="submit" disabled={isLoading} className="gap-x-2">
-          {isLoading ? <LoadingIcon className="w-6 h-6 animate-spin" /> : (<><SaveIcon className="w-5 h-5" />Save</>)}
+          {
+            isLoading ? (
+              <div className="flex flex-row items-center justify-center gap-x-2">
+                <div className="w-4 h-4 border-t-2 border-r-2 border-gray-500 rounded-full animate-spin"></div>
+                <span>Saving...</span>
+              </div>
+            ) : (
+              <><SaveIcon className="w-5 h-5" />Save</>
+            )
+          }
         </Button>
       </div>
     </form >

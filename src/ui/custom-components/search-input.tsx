@@ -93,7 +93,7 @@ export default function SearchInput() {
             onBlur={() => setIsFocused(false)}
             value={query}
             className="box-border w-full min-w-full py-1.5 px-4 pl-11 transition rounded-md lg:rounded-l-md lg:rounded-none border border-gray-300 focus:outline focus:outline-1 focus:outline-gray-600"
-            type="text" placeholder="Location, Restaurant, or Cuisine"
+            type="text" placeholder="Search"
           />
           {query && (
             <button

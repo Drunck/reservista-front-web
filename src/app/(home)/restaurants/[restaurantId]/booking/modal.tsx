@@ -1,6 +1,6 @@
 import { TRestaurant, TRestaurantTables } from "@/lib/types";
 import { Button } from "@/ui/custom-components/button";
-import { MapPointIcon } from "@/ui/custom-components/icons";
+import { LoadingIcon, MapPointIcon } from "@/ui/custom-components/icons";
 import { ResponsiveDrawerDialog } from "@/ui/custom-components/responsive-drawer-dialog";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -12,9 +12,10 @@ type ModalProps = {
   handleReservation: () => void;
   open?: boolean;
   setOpen?: (open: boolean) => void;
+  isLoading?: boolean;
 }
 
-export default function Modal({ restaurant, selectedTable, selectedTime, handleReservation, open, setOpen }: ModalProps) {
+export default function Modal({ restaurant, selectedTable, selectedTime, handleReservation, open, setOpen, isLoading }: ModalProps) {
   return (
     <ResponsiveDrawerDialog title="Reservation details" triggerButtonText="Continue" closeButtonText="Close" open={open} setOpen={setOpen}>
       <div className="flex flex-col gap-y-5 text-sm md:text-base">
@@ -35,7 +36,6 @@ export default function Modal({ restaurant, selectedTable, selectedTime, handleR
                 <MapPointIcon className="w-4 h-4 fill-gray-500" />
                 <p className="text-sm truncate text-zinc-500">{restaurant.address}</p>
               </div>
-              {/* <p className="text-sm text-zinc-500">Cuisine</p> */}
             </div>
           </div>
         </div>
@@ -58,7 +58,18 @@ export default function Modal({ restaurant, selectedTable, selectedTime, handleR
           </div>
         </div>
         <div className="flex flex-row-reverse w-full">
-          <Button className="px-4 py-2 rounded-md w-full md:max-w-64" onClick={handleReservation}>Book Table</Button>
+          <Button className="px-4 py-2 rounded-md w-full md:max-w-64" onClick={handleReservation} disabled={isLoading}>
+            {
+              isLoading ? (
+                <div className="flex flex-row items-center justify-center gap-x-2">
+                  <div className="w-4 h-4 border-t-2 border-r-2 border-gray-500 rounded-full animate-spin"></div>
+                  <span>Booking...</span>
+                </div>
+              ) : (
+                <span>Book Table</span>
+              )
+            }
+          </Button>
         </div>
       </div>
     </ResponsiveDrawerDialog>

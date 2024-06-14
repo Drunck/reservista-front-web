@@ -44,6 +44,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
   const [fetchTablesStatus, setFetchTablesStatus] = useState<FetchState>("loading");
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     if (time && typeof time === "string") {
@@ -157,6 +158,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
   };
 
   const handleReservation = async () => {
+    setIsPending(true);
     if (!auth.isAuth) {
       router.push(`/sign-in?redirect=${encodeURIComponent(redirectURL)}`);
     }
@@ -167,7 +169,13 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
         reservation_time: selectedTime,
       };
       const response = await makeTableReservation(formData);
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 200) {
+        toast({
+          title: "Reservation successful!",
+          description: "Your reservation has been successfully made. Please check your email for reservation details.",
+        })
+        fetchReservations();
+      } else if (response.status === 201) {
         toast({
           title: "Reservation successful!",
           description: "Your reservation has been successfully made.",
@@ -195,6 +203,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
         description: "Please select a time and a table to make a reservation.",
       })
     }
+    setIsPending(false);
   };
 
   const handleTableClick = (table: TRestaurantTables) => {
@@ -233,7 +242,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
       {!isDesktop && (
         <MobileTopNavigationBar menuName="Book a Table" />
       )}
-      <div className="relative min-h-screen w-full max-w-full flex flex-col pt-6 pb-20 px-4 lg:p-0 lg:px-4">
+      <div className="relative min-h-screen w-full max-w-full flex flex-col pt-6 pb-20 px-4">
         {isDesktop && <h1 className="text-2xl font-bold mb-6">Book a Table</h1>}
         <Link href={`/restaurants/${restaurant.id}`} className="flex flex-row w-full gap-x-4 mb-6 border-b pb-6">
           <div className="relative flex w-full max-w-24 h-16 max-h-24 bg-zinc-200 rounded-md overflow-hidden">
@@ -311,6 +320,7 @@ export default function TableBooking({ params }: { params: { restaurantId: strin
                       handleReservation={handleReservation}
                       open={openModal}
                       setOpen={setOpenModal}
+                      isLoading={isPending}
                     />
                   ) : (
                     <Button className="w-full" disabled={true}>Continue</Button>

@@ -38,6 +38,11 @@ export const adminRoutes: string[] = [
     "/admin/dashboard/restaurants/[restaurantId]/edit",
     "/admin/dashboard/users",
     "/admin/dashboard/users/[id]",
+
+];
+
+export const confirmReservationRoute: string[] = [
+    "/confirm/[reservationId]",
 ];
 
 /**

@@ -124,7 +124,7 @@ export function NewRestaurantCard({ restaurant, auth }: { restaurant: TRestauran
             )}
           </div>
         </Link>
-        <button onClick={handleWishlistClick} className="absolute top-3 right-3 bg-white p-2 rounded-full group">
+        <button onClick={handleWishlistClick} className="absolute box-border top-3 right-3 bg-white transition p-2 rounded-full group active:bg-gray-200">
           <HeartIcon className={`w-4 h-4 ${isInWishlist ? "fill-black" : "group-hover:fill-black"}`} />
         </button>
       </div>

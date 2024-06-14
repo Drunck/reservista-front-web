@@ -83,7 +83,7 @@ export default function UserPageSideMenu({ userId }: { userId: string }) {
               <BookingsIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm">My bookings</h3>
+              <h3 className="text-sm">Bookings</h3>
             </div>
           </div>
         </Link>
@@ -97,7 +97,7 @@ export default function UserPageSideMenu({ userId }: { userId: string }) {
               <HalfFullHeartIcon className="w-5 h-5 " />
             </div>
             <div>
-              <h3 className="text-sm">My favourites</h3>
+              <h3 className="text-sm">Favourites</h3>
             </div>
           </div>
         </Link>

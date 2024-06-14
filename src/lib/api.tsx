@@ -1,4 +1,4 @@
-import { ActivationCodeSchema, CancelReservationSchema, ReservationInput, RestaurantSearchQueryParams, SignInSchema, SignUpSchema, TRestaurantsResponse, TActivationCode, TCancelReservation, TReservationsResponse, TResponse, TRestaurantReservationsResponse, TRestaurantSearchSuggestionsResponse, TSignIn, TSignUp, TRestaurant } from "./types";
+import { ActivationCodeSchema, CancelReservationSchema, ReservationInput, RestaurantSearchQueryParams, SignInSchema, SignUpSchema, TRestaurantsResponse, TActivationCode, TCancelReservation, TReservationsResponse, TResponse, TRestaurantReservationsResponse, TRestaurantSearchSuggestionsResponse, TSignIn, TSignUp, TRestaurant, reservationIdSchema } from "./types";
 import { capitalizeFirstLetter } from "./utils";
 
 export const signInUser = async (formData: TSignIn) => {
@@ -31,24 +31,22 @@ export const signInUser = async (formData: TSignIn) => {
         return {
           serverError: "No Server Response"
         }
+      } else if (response.status === 400) {
+        return {
+          serverError: await response.json().then(data => {
+            const s = data.message;
+            return capitalizeFirstLetter(s);
+          })
+        }
       }
       return {
-        serverError: await response.json().then(data => {
-          const s = data.message;
-          return capitalizeFirstLetter(s);
-        })
+        serverError: "Sign in failed"
       }
     }
   }
   catch (error: any) {
-    if (!error?.response) {
-      return {
-        serverError: "No Server Response"
-      }
-    } else {
-      return {
-        serverError: "Sign in failed"
-      }
+    return {
+      serverError: "Sign in failed"
     }
   }
 }
@@ -195,7 +193,7 @@ export const getAllRestaurants = async ({ q, page = 1, limit = 20 }: RestaurantS
         "Content-Type": "application/json"
       },
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
 
     if (response.status === 200) {
@@ -238,7 +236,6 @@ export const getRestaurantById = async (id: string) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/restaurants/view/${id}`, {
       method: "GET",
       credentials: "include",
-      cache: "no-store",
     });
 
     if (response.ok) {
@@ -298,6 +295,27 @@ export const getAllReservationsByRestaurantId = async (id: string): Promise<TRes
     message: "Failed to fetch reservations",
     data: { reservations: [] },
   };
+}
+
+export const getReservationById = async (reservationId: string) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/reservations/view/${reservationId}`, {
+      method: "GET",
+      credentials: "include"
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+  } catch (error: any) {
+    if (!error.response) {
+      console.error("No server response");
+      return;
+    }
+    console.error("Error fetching reservation: ", error);
+    return;
+  }
 }
 
 export const getTablesByRestaurantId = async (id: string) => {
@@ -495,5 +513,49 @@ export const updateRestaurantBasicInfo = async (formData: TRestaurant) => {
       return { status: 500, message: "No server response" };
     }
     return { status: 400, message: "Failed to update restaurant" };
+  }
+}
+
+export const deleteRestaurant = async (id: string) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/restaurants/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+    });
+    if (response.ok) {
+      return { status: 200, message: "Restaurant deleted successfully" };
+    }
+
+    throw new Error("Failed to delete restaurant");
+  } catch (error: any) {
+    if (!error.response) {
+      console.error("No server response");
+      return { status: 500, message: "No server response" };
+    }
+    return { status: 400, message: "Failed to delete restaurant" };
+  }
+}
+
+export const confirmReservation = async (id: string) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/reservations/confirm/${id}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    
+    if (response.ok) {
+      return { status: 200, message: "Reservation confirmed successfully" };
+    }
+
+    throw new Error("Failed to confirm reservation");
+  } catch (error: any) {
+    if (!error.response) {
+      console.error("No server response");
+      return { status: 500, message: "No server response" };
+    }
+    return { status: 400, message: "Failed to confirm reservation" };
   }
 }

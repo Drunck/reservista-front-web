@@ -22,7 +22,7 @@ export default function UserFavouritesPage() {
 
   const handleRemoveFromWishlist = (restaurantId: string) => {
     const updatedWishlist = wishlist.filter((restaurant) => restaurant.id !== restaurantId);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+    localStorage.setItem("favourites", JSON.stringify(updatedWishlist));
     setWishlist(updatedWishlist);
   };
 
@@ -45,10 +45,10 @@ export default function UserFavouritesPage() {
             </div>
           ) : (
             wishlist.map((restaurant) => (
-              <div key={restaurant.id} className="col-span-1 flex flex-col bg-white rounded-lg border shadow-sm">
+              <div key={restaurant.id} className="col-span-1 flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden ">
                 <div className="relative flex">
                   <Link href={`/restaurants/${restaurant.id}`} className="w-full h-full">
-                    <div className="relative w-full h-[150px] max-w-full rounded-t-xl overflow-hidden md:h-[200px]">
+                    <div className="relative w-full h-[150px] max-w-full rounded-t-lg md:h-[200px]">
                       {restaurant.image_urls ? (
                         <Image
                           src={restaurant.image_urls[0].toString()}

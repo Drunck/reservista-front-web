@@ -53,7 +53,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
       case "menu":
         return <MenuSection />;
       case "gallery":
-        return <GallerySection />;
+        return <GallerySection images={restaurant.image_urls || []} />;
       case "reviews":
         return <ReviewsSection />;
       case "about":
@@ -79,9 +79,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
 
   return (
     <>
-      {/* {!isDesktop && (
-        <MobileTopNavigationBar className="bg-transparent"/>
-      )} */}
+
       <div className="relative w-full h-96">
         {
           restaurant.image_urls ? (
@@ -92,7 +90,7 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
           )
         }
       </div>
-      <div className="grid grid-cols-1 w-full lg:grid-cols-3 lg:gap-4 lg:w-[95%] mx-auto">
+      <div className="grid grid-cols-1 w-full lg:grid-cols-3 lg:gap-4 lg:w-[95%] mx-auto min-h-fit">
         <div className="relative w-full col-span-1 rounded-t-xl bg-white lg:w-full mt-[-80px] mx-auto lg:col-span-2 lg:shadow-[0px_0px_10px_0px_#0000001A]">
           <div className="py-6 px-6">
             <div className="flex flex-row justify-between items-center w-full">
@@ -209,65 +207,21 @@ export default function RestaurantPage({ params }: { params: { restaurantId: str
           </div>
         }
 
-        {!isDesktop &&
-          <div className="sticky bottom-20 w-full">
-            <div className="flex flex-row justify-center w-full">
-              {
-                auth.isAuth ? (
-                  <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-64 bg-black text-sm text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
-                ) : (
-                  <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Login to Book</Link>
-                )
-              }
-              {/* <Link href="/restaurants/[restaurantId]/booking" as={`/restaurants/${params.restaurantId}/booking`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link> */}
-            </div>
-          </div>
-        }
       </div>
+      {!isDesktop &&
+        <div className="sticky bottom-20 w-full">
+          <div className="flex flex-row justify-center w-full">
+            {
+              auth.isAuth ? (
+                <Link href={`/restaurants/${params.restaurantId}/booking?time=${encodeURIComponent(selectedTime)}`} className="w-64 bg-black text-sm text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link>
+              ) : (
+                <Link href={`/sign-in?redirect=${encodeURIComponent(redirectURL)}`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Login to Book</Link>
+              )
+            }
+            {/* <Link href="/restaurants/[restaurantId]/booking" as={`/restaurants/${params.restaurantId}/booking`} className="w-64 bg-black text-white text-center py-2 rounded-full shadow-lg">Book a Table</Link> */}
+          </div>
+        </div>
+      }
     </>
   )
 }
-
-
-const LoadingSkeleton: React.FC = () => {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:w-[95%] mx-auto mt-6 animate-pulse">
-      <div className="relative rounded-t-xl bg-gray-200 lg:w-full mt-[-80px] mx-auto lg:col-span-2 lg:shadow-[0px_0px_10px_0px_#0000001A]">
-        <div className="py-6 px-6">
-          <div className="flex flex-row justify-between items-center w-full mb-4">
-            <div className="h-8 bg-gray-300 rounded w-1/2"></div>
-            <div className="flex flex-row items-end gap-x-1">
-              <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
-              <div className="h-4 bg-gray-300 rounded w-6"></div>
-              <div className="h-4 bg-gray-300 rounded w-8"></div>
-            </div>
-          </div>
-          <div className="flex flex-row items-center mb-2">
-            <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
-            <div className="h-4 bg-gray-300 rounded w-1/3 ml-2"></div>
-          </div>
-          <div className="flex flex-row items-center mt-1">
-            <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
-            <div className="h-4 bg-gray-300 rounded w-2/3 ml-2"></div>
-          </div>
-        </div>
-        <nav className="mt-3 shadow-[inset_0_-1px_0_0_#e5e5e5] w-full text-sm">
-          <div className="flex justify-between items-center px-6 overflow-x-auto">
-            <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-            <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-            <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-            <div className="h-8 bg-gray-300 rounded w-1/4"></div>
-          </div>
-        </nav>
-        <div className="pb-40">
-          <div className="px-6 py-6 text-sm">
-            <div className="h-6 bg-gray-300 rounded w-full mb-4"></div>
-            <div className="h-6 bg-gray-300 rounded w-full mb-4"></div>
-            <div className="h-6 bg-gray-300 rounded w-full mb-4"></div>
-            <div className="h-6 bg-gray-300 rounded w-full mb-4"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: "ok", user: { id: payload.user_id, roles: payload.roles } }, { status: 200 });
       }
       catch (error: JWTVerifyError | any) {
-        return NextResponse.json({ status: "error", message: error.code }, { status: 400 });
+        return NextResponse.json({ status: "error", message: error.code || "" }, { status: 400 });
       }
     } else {
       return NextResponse.json({ status: "error", message: "Unauthorized: No token provided" }, { status: 401 });

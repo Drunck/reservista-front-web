@@ -89,6 +89,7 @@ export const TableSchema = z.object({
     name: z.string().trim().min(1, "Restaurant name must be at least 1 characters").max(64, "Restaurant name must be at most 64 characters"),
     address: z.string().trim().min(1, "Restaurant address must be at least 1 characters").max(64, "Restaurant address must be at most 64 characters"),
     contact: z.string().trim().min(1, "Restaurant contact must be at least 1 characters").max(64, "Restaurant contact must be at most 64 characters"),
+    image_urls: z.array(z.string()).optional(),
   }),
 });
 
@@ -112,7 +113,7 @@ export type TRestaurant = {
   description?: string,
   reviews?: object[];
   menu?: object[];
-  image_urls?: object[];
+  image_urls?: string[];
 }
 
 export type TRestaurantReservation = {
@@ -164,7 +165,7 @@ export type TRestaurantSearchSuggestionsResponse = TResponse & {
 
 export type FetchState = "loading" | "error" | "success";
 
-export const times = ["8:00 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM"];
+export const times = ["12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM"];
 
 export type ReponsiveDrawerDialogProps = {
   open?: boolean;
@@ -209,3 +210,5 @@ export const AddRestaurantSchema = z.object({
 });
 
 export type AddRestaurant = z.infer<typeof AddRestaurantSchema>;
+
+export const reservationIdSchema = z.string().uuid("Invalid reservation id");

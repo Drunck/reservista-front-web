@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cancelReservation, getUserReservations } from "@/lib/api";
+import { cancelReservation, getRestaurantById, getUserReservations } from "@/lib/api";
 import { FetchState, TReservation } from "@/lib/types";
 import useMediaQuery from "@/lib/hooks/use-media-query";
 import { Button } from "@/ui/custom-components/button";
@@ -20,31 +20,67 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
   const [isMounted, setIsMounted] = useState(false);
   const [serverError, setServerError] = useState("");
   const [fetchState, setFetchState] = useState<FetchState>("loading");
+  const [isLoading, setIsLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { toast } = useToast();
 
-  const fetchUserReservations = async () => {
+  const fetchUserReservationsWithImages = async () => {
     setFetchState("loading");
-    const response = await getUserReservations();
-    if (response && response.reservations) {
-      setUserReservations(response.reservations);
-    } else {
+
+    try {
+      // Fetch user reservations
+      const response = await getUserReservations();
+      if (!response || !response.reservations) {
+        setUserReservations([]);
+        setServerError("An error occurred while fetching your reservations. Please try again later.");
+        setFetchState("error");
+        return;
+      }
+
+      const reservations = response.reservations;
+
+      // Fetch restaurant details for each reservation
+      const fetchRestaurantDetailsPromises = reservations.map(async (reservation) => {
+        const restaurantId = reservation.table.restaurant.id;
+        const restaurantDetails = await getRestaurantById(restaurantId);
+        return {
+          ...reservation,
+          table: {
+            ...reservation.table,
+            restaurant: {
+              ...reservation.table.restaurant,
+              image_urls: restaurantDetails?.image_urls || [],
+            },
+          },
+        };
+      });
+
+      // Resolve all promises
+      const updatedReservations = await Promise.all(fetchRestaurantDetailsPromises);
+
+      // Set the updated reservations with image URLs
+      setUserReservations(updatedReservations);
+      setFetchState("success");
+
+    } catch (error) {
+      console.error("Error fetching user reservations with images:", error);
       setUserReservations([]);
       setServerError("An error occurred while fetching your reservations. Please try again later.");
       setFetchState("error");
     }
-    setFetchState("success");
   }
 
   const handleConfirmCancel = async (reservationId: string) => {
+    setIsLoading(true);
     if (reservationId) {
       setFetchState("loading");
       const response = await cancelReservation({ id: reservationId });
 
       if (response.status === 200) {
         setFetchState("success");
-        fetchUserReservations();
+        // fetchUserReservations();
+        fetchUserReservationsWithImages();
         toast({
           variant: "green",
           title: "Reservation canceled successfully",
@@ -52,7 +88,8 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
         });
       } else {
         setFetchState("error");
-        fetchUserReservations();
+        // fetchUserReservations();
+        fetchUserReservationsWithImages();
         toast({
           variant: "destructive",
           title: "Uh oh! Problem while canceling the reservation.",
@@ -61,18 +98,23 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
       }
       setDialogOpen(false);
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
-    fetchUserReservations();
+    // fetchUserReservations();
+    fetchUserReservationsWithImages();
     setIsMounted(true);
   }, []);
 
   const currentDate = new Date();
 
+  console.log(userReservations);
+
   const activeReservations = userReservations.filter(reservation => {
     const reservationDate = new Date(reservation.reservationDate.seconds * 1000);
-    const parsedTime = parse(reservation.reservationTime, "h:mm a", new Date());
+    const parsedTime = parse(reservation.reservationTime, "h:mm a", reservationDate);
+
     return isBefore(format(currentDate, "dd.MM.yyyy"), format(reservationDate, "dd.MM.yyyy")) || (currentDate.toDateString() === reservationDate.toDateString() && parsedTime > currentDate);
   }).sort((a, b) => {
     const dateA = new Date(a.reservationDate.seconds * 1000);
@@ -81,8 +123,9 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
   });
 
   const completedReservations = userReservations.filter(reservation => {
-    const parsedTime = parse(reservation.reservationTime, "h:mm a", new Date());
     const reservationDate = new Date(reservation.reservationDate.seconds * 1000);
+    const parsedTime = parse(reservation.reservationTime, "h:mm a", reservationDate);
+
     return isBefore(format(reservationDate, "dd.MM.yyyy"), format(currentDate, "dd.MM.yyyy")) ||
       (currentDate.toDateString() === reservationDate.toDateString() && parsedTime < currentDate);
   });
@@ -90,7 +133,7 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
   if (!isMounted) {
     return null;
   }
-  
+
   return (
     <>
       {!isDesktop && (
@@ -130,15 +173,21 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
                           <div className="px-4 py-2 w-full">
                             <div className="flex flex-row gap-x-4 w-full">
                               <div className="w-full max-w-20 h-20 relative overflow-hidden rounded-md">
-                                {/* {
-                                reservation.table.restaurant?.image_urls ? (
-                                  <Image src={`${restaurant.image_urls[0]}`} alt="Restaurant" className="w-full h-full object-cover" fill priority placeholder="blur"
-                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII=" />
-                                ) : (
-                                  <div className="min-w-md min-h-md min-h-96 bg-gray-200"></div>
-                                )
-                              } */}
-                                <div className="min-w-md min-h-96 bg-gray-200"></div>
+                                {
+                                  reservation.table.restaurant.image_urls && reservation.table.restaurant.image_urls.length > 0 ? (
+                                    <Image
+                                      src={reservation.table.restaurant.image_urls[0]}
+                                      alt="Restaurant"
+                                      className="w-full h-full object-cover"
+                                      fill
+                                      priority
+                                      placeholder="blur"
+                                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII="
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full object-cover bg-gray-200"></div>
+                                  )
+                                }
                               </div>
                               <div className="flex flex-col w-full">
                                 <div className="flex flex-row justify-between items-center gap-x-2 text-sm">
@@ -214,7 +263,18 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
                                   <span className="text-gray-500">This action cannot be undone.</span>
                                 </div>
                                 <div className="flex flex-row gap-2">
-                                  <Button className="w-full" onClick={() => handleConfirmCancel(reservation.id)}>Confirm</Button>
+                                  <Button className="w-full" disabled={isLoading} onClick={() => handleConfirmCancel(reservation.id)}>
+                                    {
+                                      isLoading ? (
+                                        <div className="flex flex-row items-center justify-center gap-x-2">
+                                          <div className="w-4 h-4 border-t-2 border-r-2 border-gray-500 rounded-full animate-spin"></div>
+                                          <span>Canceling...</span>
+                                        </div>
+                                      ) : (
+                                        "Cancel reservation"
+                                      )
+                                    }
+                                  </Button>
                                 </div>
                               </div>
                             </ResponsiveDrawerDialog>
@@ -245,14 +305,21 @@ export default function UserBookingsComponent({ userId }: { userId: string }) {
                         <div className="px-4 py-2 w-full">
                           <div className="flex flex-row gap-x-4 w-full">
                             <div className="w-full max-w-20 h-20 relative overflow-hidden rounded-md">
-                              {/* {
-                                reservation.table.restaurant?.image_urls ? (
-                                  <Image src={`${restaurant.image_urls[0]}`} alt="Restaurant" className="w-full h-full object-cover" fill priority placeholder="blur"
-                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII=" />
+                              {
+                                reservation.table.restaurant.image_urls && reservation.table.restaurant.image_urls.length > 0 ? (
+                                  <Image
+                                    src={reservation.table.restaurant.image_urls[0]}
+                                    alt="Restaurant"
+                                    className="w-full h-full object-cover"
+                                    fill
+                                    priority
+                                    placeholder="blur"
+                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPcuAIAAhABW1l4PkwAAAAASUVORK5CYII="
+                                  />
                                 ) : (
-                                  <div className="min-w-md min-h-md min-h-96 bg-gray-200"></div>
+                                  <div className="w-full h-full object-cover bg-gray-200"></div>
                                 )
-                              } */}
+                              }
                               <div className="min-w-md min-h-96 bg-gray-200"></div>
                             </div>
                             <div className="flex flex-col w-full">
